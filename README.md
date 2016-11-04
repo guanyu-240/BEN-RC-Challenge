@@ -1,2 +1,2 @@
 # BENRunningClub
-Websites used for BEN Running club event stats
+A light weighted website which is used for BEN Running club event stats<
