@@ -7,5 +7,9 @@ app = Flask(__name__)
 def event_register():
   return render_template('event_registration.html')
 
+@app.route("/event_stats")
+def event_stats():
+  return render_template('event_stats.html')
+
 if __name__ == "__main__":
   app.run()
