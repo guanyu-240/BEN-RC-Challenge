@@ -5,8 +5,10 @@ from event import get_event_data
 
 app = Flask(__name__)
 
+access_token = 'YOUR_ACCESS_TOKEN'
+
 data = get_event_data('event.cfg', 'running_streak_1')
-strava_obj = Strava('d575147b36c3611231ca55f807307f16d06c8eef')
+strava_obj = Strava(access_token)
 
 @app.route("/event_register")
 def event_register():
