@@ -8,7 +8,10 @@ import time
 
 app = Flask(__name__)
 
+access_token = 'YOUR_ACCESS_TOKEN'
+
 data = get_event_data('event.cfg', 'running_streak_1')
+<<<<<<< HEAD
 cfg = ConfigParser.RawConfigParser()
 cfg.read('website.cfg')
 access_token = cfg.get('website', 'strava_access_token')
