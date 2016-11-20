@@ -27,19 +27,12 @@
       <th>Score</th>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <th scope="row">Partizan</th>
-      <td></td>
-      <td>11 mile</td>
-      <td>15 mile</td>
-      <td>8 mile</td>
-      <td>6 mile</td>
-      <td>5 mile</td>
-      <td>18 mile</td>
-      <td>6</td>
-    </tr>
-  </tbody>
+  <tbody>{% for x in weekly_data %} <tr>
+      <th scope="row">{{ x['name'] }}</th> {% for i in range(7) %}
+        <td>{{ x['workouts'][i] }}</td>{% endfor %}
+      <td>{{ x['score'] }}</td> 
+      </tr> 
+  {% endfor %}</tbody>
   </table>
 
 </div>
