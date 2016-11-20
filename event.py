@@ -1,5 +1,6 @@
 import ConfigParser
 from data import EventData
+from datetime import datetime
 
 def convert_date_str(s):
   return datetime.strptime(s, '%Y-%m-%d').date()
@@ -11,6 +12,6 @@ class Event:
     start_date = convert_date_str(cfg.get(event_name, 'start_date'))
     end_date = convert_date_str(cfg.get(event_name, 'end_date'))
     data_file = cfg.get(event_name, 'data_file')
-    self.__data = EventData(data_file, start_date, end_date)
+    self.data = EventData(data_file, start_date, end_date)
     
   
