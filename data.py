@@ -56,7 +56,8 @@ class EventData:
 
   def get_current_week_idx(self, time_zone='UTC'):
     today = datetime.now(timezone(time_zone)).date()
-    return (today-self.__startDate).days/7
+    ret = (today-self.__startDate).days/7
+    return min(max(ret, 0), self.__numWeeks)
 
   def update_weekly_scores(self, week_idx):
     """
@@ -75,8 +76,9 @@ class EventData:
           base_score += 1
           if (drought > 0): penalty += (drought - 1);
           drought = 0;
-      if (drought > 0): penalty += (drought - 1);
-      v['weekly_scores'][week_idx] = min(base_score - penalty, 6)
+      if (drought > 0): penalty += (drought - 1)
+      score = min(max(base_score - penalty, 0), 6)
+      v['weekly_scores'][week_idx] = score 
 
   def get_weekly_data(self, week_idx):
     ret = []
