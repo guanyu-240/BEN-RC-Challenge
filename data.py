@@ -122,7 +122,7 @@ class EventData:
     activities = athlete['activities']
     idx = (activity_date-self.__startDate).days
     if activities[idx] is None:
-      activities[idx] = {activity_id: distance}
+      activities[idx] = {str(activity_id): distance}
     else: activities[idx][str(activity_id)] = distance
     return True
 
