@@ -14,23 +14,28 @@
   <h2>BEN Event stats</h2>
   <p><br/></p>
   <p>
-   <button type = "button" class = "btn btn-primary btn-xs">
+  <form action="event_stats" method="post">
+   <input type="hidden" name = "event_id" value = "{{ event_id }}">
+   <button type = "submit" name = "week_idx" value = {{ 0 }} class = "btn btn-primary btn-xs">
       First
    </button>
    &nbsp;
-   <button type = "button" class = "btn btn-primary btn-xs">
+   <button type = "submit" name = "week_idx" value = {{ week_idx-1 }} class = "btn btn-primary btn-xs">
       Prev
    </button>
    &nbsp;
-   <button type = "button" class = "btn btn-primary btn-xs">
+   <button type = "submit" name = "week_idx" value = {{ week_idx+1 }} class = "btn btn-primary btn-xs">
       Next
    </button>
    &nbsp;
-   <button type = "button" class = "btn btn-primary btn-xs">
+   <button type = "submit" name = "week_idx" value = {{ last_week_idx }} class = "btn btn-primary btn-xs">
       Last
    </button>
+   </input>
+   </form>
 </p>
   <table class="table">
+  <caption>{{ week_str }}</caption>
   <thead class="thead-inverse">
     <tr>
       <th>Participant</th>

@@ -2,7 +2,7 @@
 
 import os
 from json import JSONEncoder,JSONDecoder
-from datetime import datetime,date
+from datetime import datetime,date,timedelta
 from stravalib.strava import convert_datestr
 from pytz import timezone
 """
@@ -31,8 +31,8 @@ class EventData:
       self.__data = {}
     self.__startDate = start_date
     self.__endDate = end_date
-    self.__numDays = 1+(self.__endDate-self.__startDate).days
-    self.__numWeeks = self.__numDays/7
+    self.numDays = 1+(self.__endDate-self.__startDate).days
+    self.numWeeks = self.numDays/7
 
   def add_athlete(self, first_name, last_name, athlete_id):
     """
@@ -41,8 +41,8 @@ class EventData:
     if str(athlete_id) in self.__data: return
     entry = {'first_name': first_name,
              'last_name': last_name,
-             'activities': [None for i in range(self.__numDays)],
-             'weekly_scores': [0 for i in range(self.__numWeeks)]}
+             'activities': [None for i in range(self.numDays)],
+             'weekly_scores': [0 for i in range(self.numWeeks)]}
     self.__data[str(athlete_id)] = entry
 
   def register_athlete(self, first_name, last_name, strava_club_members):
@@ -59,13 +59,13 @@ class EventData:
   def get_current_week_idx(self, time_zone='UTC'):
     today = datetime.now(timezone(time_zone)).date()
     ret = (today-self.__startDate).days/7
-    return min(max(ret, 0), self.__numWeeks)
+    return min(max(ret, 0), self.numWeeks)
 
   def update_weekly_scores(self, week_idx):
     """
     Calculate weekly score
     """
-    if week_idx >= self.__numWeeks: return
+    if week_idx >= self.numWeeks: return
     for k,v in self.__data.iteritems():
       activities = v['activities']
       base_score = 0
@@ -84,7 +84,10 @@ class EventData:
 
   def get_weekly_data(self, week_idx):
     ret = []
-    if week_idx >= self.__numWeeks: return ret
+    if week_idx >= self.numWeeks or week_idx < 0: return ["Week:", []]
+    week_start = self.__startDate + timedelta(week_idx*7)
+    week_end = week_start + timedelta(6)
+    week_str = 'Week: {0.month}/{0.day}/{0.year} - {1.month}/{1.day}/{1.year}'.format(week_start, week_end)
     for k,v in self.__data.iteritems():
       workouts = v['activities'][7*week_idx:7*week_idx+7]
       workouts_stats = []
@@ -99,7 +102,7 @@ class EventData:
                'workouts': workouts_stats, 
                'score': v['weekly_scores'][week_idx]}
       ret.append(entry)
-    return ret
+    return [week_str, ret]
 
   def add_activity(self, strava_activity):
     """
