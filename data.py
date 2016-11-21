@@ -50,9 +50,11 @@ class EventData:
     Register an athlete to this event
     """
     for member in strava_club_members:
-      if member['firstname'].lower() == first_name.lower() and \
-           member['lastname'].lower() == last_name.lower():
-        self.add_athlete(first_name, last_name, member['id']) 
+      if member['firstname'].strip().lower() == first_name.strip().lower() and \
+           member['lastname'].strip().lower() == last_name.strip().lower():
+        self.add_athlete(first_name.strip(), last_name.strip(), member['id'])
+        return True
+    return False
 
   def get_current_week_idx(self, time_zone='UTC'):
     today = datetime.now(timezone(time_zone)).date()
