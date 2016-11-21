@@ -19,6 +19,7 @@ strava_obj = Strava(access_token)
 last_updated_time = datetime.now()
 
 def update_data():
+  global last_updated_time
   now = datetime.now()
   if (now - last_updated_time).seconds < 300: return
   activities = strava_obj.getClubActivitiesCurWeek(club_id, time_zone='US/Eastern')
