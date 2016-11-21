@@ -55,13 +55,13 @@ def event_stats():
   week_idx = data.get_current_week_idx('US/Eastern')
   if request.method == 'POST':
     week_idx = int(get_post_val(week_idx, 'week_idx'))
-  week_idx = min(max(week_idx, 0), data.numWeeks)
   weekly_data = ['Week:', []]
   last_week_idx = 0
   if data is not None:
     update_data(data)
-    weekly_data = data.get_weekly_data(week_idx)
     last_week_idx = data.numWeeks-1
+    week_idx = min(max(week_idx, 0), data.numWeeks)
+    weekly_data = data.get_weekly_data(week_idx)
   return render_template('event_stats.html', \
                              event_id=event_id, \
                              week_str=weekly_data[0], \
