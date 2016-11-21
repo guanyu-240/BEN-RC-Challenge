@@ -13,7 +13,8 @@
 <div class="container">
   <h2>BEN Event Registration</h2>
   <p><br/></p>
-  <form>
+  {% if ret_msg %}<p>{{ ret_msg }}</p>{% endif %}
+  <form action="event_register", method='post'>
     <div class="form-group row">
       <label for="inputFirstName" class="col-sm-2 col-form-label">First Name</label>
       <div class="col-sm-10">

@@ -42,9 +42,24 @@ def get_post_val(default_val, key):
   return val
   
 
-@app.route("/event_register")
+@app.route("/event_register", methods=['GET', 'POST'])
 def event_register():
-  return render_template('event_registration.html')
+  event_id = onload_event
+  if request.method == 'POST':
+    event_id = onload_event
+    event_id = get_post_val(event_id, 'event_id')
+    first_name = get_post_val(None, 'first_name')
+    last_name = get_post_val(None, 'last_name')
+    data = event_data_map.get(event_id)
+    if data:
+      ret = data.register_athlete(first_name, last_name, strava_obj.listClubMembers(club_id))
+      data.save_data()
+      if ret: ret_msg = "Athlete registered successfully!"
+      else: ret_msg = "Athlete already registered or not in strava group!"
+    else: ret_msg = "Can not register!"
+    return render_template('event_registration.html', ret_msg=ret_msg)
+  else:
+    return render_template('event_registration.html')
 
 @app.route("/event_stats", methods=['GET','POST'])
 def event_stats():
