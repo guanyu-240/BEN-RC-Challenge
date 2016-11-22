@@ -17,9 +17,8 @@ onload_event = cfg.get('website', 'onload_event')
 
 # load events info
 event_cfg = EventConfig('event.cfg')
-events = event_cfg.get_events()
-event_data_map[onload_event] = event_cfg.get_event_data(onload_event)
-
+events = event_cfg.events
+event_cfg.load_event_data(onload_event)
 strava_obj = Strava(access_token)
 
 last_updated_time = datetime.now()
@@ -63,22 +62,21 @@ def event_register():
 
 @app.route("/event_stats", methods=['GET','POST'])
 def event_stats():
-  event_id = onload_event
-  if request.method == 'POST':
-    event_id = get_post_val(event_id, 'event_id')
-  data = event_data_map.get(event_id)
+  event_id = get_post_val(onload_event, 'event_id')
+  event = events.get(event_id)
+  if event is None: return "Event not found!"
+  data = event_cfg.load_event_data(event_id)
+  if data is None: return 'Event data not available'
+  event_title = event['title']
   week_idx = data.get_current_week_idx('US/Eastern')
-  if request.method == 'POST':
-    week_idx = int(get_post_val(week_idx, 'week_idx'))
-  weekly_data = ['Week:', []]
-  last_week_idx = 0
-  if data is not None:
-    update_data(data)
-    last_week_idx = data.numWeeks-1
-    week_idx = min(max(week_idx, 0), data.numWeeks)
-    weekly_data = data.get_weekly_data(week_idx)
+  week_idx = int(get_post_val(week_idx, 'week_idx'))
+  update_data(data)
+  last_week_idx = data.numWeeks-1
+  week_idx = min(max(week_idx, 0), last_week_idx)
+  weekly_data = data.get_weekly_data(week_idx)
   return render_template('event_stats.html', \
                              event_id=event_id, \
+                             event_title=event_title, \
                              week_str=weekly_data[0], \
                              weekly_data=weekly_data[1], \
                              week_idx=week_idx, \

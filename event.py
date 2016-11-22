@@ -7,15 +7,51 @@ def convert_date_str(s):
 
 class EventConfig:
   def __init__(self, cfg_file):
-    self.cfg = ConfigParser.RawConfigParser()
-    self.cfg.read(cfg_file)
+    self.__cfgFile = cfg_file
+    self.__cfg = ConfigParser.RawConfigParser()
+    self.__cfg.read(cfg_file)
+    self.events = {}
+    self.__load_events()
 
-  def get_events(self):
-    return self.cfg.sections() 
+  def __load_events(self):
+    event_ids = self.__cfg.sections()
+    for e_id in event_ids:
+      self.__addToMap(e_id)
 
-  def get_event_data(self, event_name):
-    start_date = convert_date_str(self.cfg.get(event_name, 'start_date'))
-    end_date = convert_date_str(self.cfg.get(event_name, 'end_date'))
-    data_file = self.cfg.get(event_name, 'data_file')
-    return EventData(data_file, start_date, end_date)
-  
+  def __addToMap(self, e_id):
+     if self.__cfg.has_option(e_id, 'event_title') and \
+        self.__cfg.has_option(e_id, 'start_date') and \
+        self.__cfg.has_option(e_id, 'end_date') and \
+        self.__cfg.has_option(e_id, 'data_file'):
+        self.events[e_id] = { \
+            'title': self.__cfg.get(e_id, 'event_title'),
+            'start_date': convert_date_str(self.__cfg.get(e_id, 'start_date')),
+            'end_date': convert_date_str(self.__cfg.get(e_id, 'end_date')),
+            'data_file': self.__cfg.get(e_id, 'data_file'),
+            'data': None}
+
+  def load_event_data(self, e_id):
+    ret = None
+    if e_id not in self.events: return ret
+    ret = self.events[e_id].get('data')
+    if ret is None:
+      ret = EventData(self.events[e_id]['data_file'],
+                      self.events[e_id]['start_date'],
+                      self.events[e_id]['end_date'])
+      self.events[e_id]['data'] = ret
+    return ret
+
+  def add_event(self, event_id, event_title, start_date, end_date):
+    if event_id is None or \
+       event_title is None or \
+       start_date is None or \
+       end_date is None: return False
+    self.__cfg.add_section(event_id)
+    self.__cfg.set(event_id, 'event_title', event_title)
+    self.__cfg.set(event_id, 'start_date', start_date)
+    self.__cfg.set(event_id, 'end_date', end_date)
+    self.__cfg.set(event_id, 'data_file', event_id+'.json')
+    self.__addToMap(event_id)
+
+  def save_cfg(self):
+    self.__cfg.write(cfg_file)
