@@ -11,26 +11,20 @@
 <body>
 
 <div class="container">
-  <h2>BEN Event Registration</h2>
+  <h1 align="center" style="padding:20px">Welcome to Event Admin Portal</h1>
   <p><br/></p>
   {% if ret_msg %}<p>{{ ret_msg }}</p>{% endif %}
-  <form action="event_register", method='post'>
+  <form action="admin_login", method='post'>
     <div class="form-group row">
-      <label for="inputFirstName" class="col-sm-2 col-form-label">First Name</label>
+      <label for="inputUserName" class="col-sm-2 col-form-label">Username</label>
       <div class="col-sm-10">
-        <input type="text" name="first_name" class="form-control" id="inputFirstName" placeholder="First Name">
+        <input type="text" name="username" class="form-control" id="inputUserName" placeholder="User Name">
       </div>
     </div>
     <div class="form-group row">
-      <label for="inputLastName" class="col-sm-2 col-form-label">Last Name</label>
+      <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
       <div class="col-sm-10">
-        <input type="text" name="last_name" class="form-control" id="inputLastName" placeholder="Last Name">
-      </div>
-    </div>
-    <div class="form-group row">
-      <label for="inputEmail" class="col-xs-2 col-form-label">E-mail</label>
-      <div class="col-xs-10">
-         <input type="email" name="email" class="form-control" id="inputEmail" placeholder="Enter your e-mail address same as the one in your Strava account">
+        <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Password">
       </div>
     </div>
     <div class="form-group row">

@@ -1,12 +1,16 @@
 #!/usr/bin/python
-from flask import Flask, request, render_template
+from flask import Flask, render_template
+from flask import request, redirect, url_for, session
 from stravalib.strava import Strava, process_activity
 from event import EventConfig 
+from admin import AdminDB
 import ConfigParser
 from datetime import datetime
 from pytz import timezone
+from bcrypt import gensalt
 
 app = Flask(__name__)
+app.secret_key = gensalt(20)
 event_data_map = {}
 
 # load website info
@@ -22,18 +26,24 @@ events = event_cfg.events
 event_cfg.load_event_data(onload_event)
 strava_obj = Strava(access_token)
 
+# load admin info
+admin_db = AdminDB('admins.cfg')
+
 last_updated_time = datetime.now()
 
 def update_data(data):
   global last_updated_time
   now = datetime.now()
   if (now - last_updated_time).seconds < 100: return
-  activities = strava_obj.getClubActivitiesCurWeek(club_id, time_zone='US/Eastern')
-  for a in activities:
-    a = process_activity(a)
-    data.add_activity(a)
-  data.update_weekly_scores(data.get_current_week_idx())
-  data.save_data()
+  try:
+    activities = strava_obj.getClubActivitiesCurWeek(club_id, time_zone='US/Eastern')
+    for a in activities:
+      a = process_activity(a)
+      data.add_activity(a)
+    data.update_weekly_scores(data.get_current_week_idx())
+    data.save_data()
+  except:
+    print 'Error in update!'
   last_updated_time = now
 
 def get_post_val(default_val, key):
@@ -41,8 +51,7 @@ def get_post_val(default_val, key):
   if val is None: return default_val
   return val
   
-@app.route("/events_home", methods=["GET"])
-def events_home():
+def get_events_list():
   today = datetime.now(timezone('US/Eastern')).date()
   ret_data=[]
   for e_id, e_info in events.iteritems():
@@ -51,7 +60,13 @@ def events_home():
             else 'disabled'
     ret_data.append((e_id, e_info['title'], e_info['start_date'], e_info['end_date'], state))
   ret_data = sorted(ret_data, key=lambda x: x[2])
+  return ret_data
+
+@app.route("/events_home", methods=["GET"])
+def events_home():
+  ret_data = get_events_list()
   return render_template('events_home.html', events=ret_data)
+
 
 @app.route("/event_register", methods=['GET', 'POST'])
 def event_register():
@@ -71,6 +86,7 @@ def event_register():
     return render_template('event_registration.html', ret_msg=ret_msg)
   else:
     return render_template('event_registration.html')
+
 
 @app.route("/event_stats", methods=['GET','POST'])
 def event_stats():
@@ -93,6 +109,34 @@ def event_stats():
                              weekly_data=weekly_data[1], \
                              week_idx=week_idx, \
                              last_week_idx=last_week_idx)
+
+
+@app.route("/events_admin", methods=['GET'])
+def events_admin():
+  username = session.get('username')
+  admin_name = session.get('admin_name')
+  if username and admin_name:
+    ret_data = get_events_list()
+    return render_template('events_admin.html', events=ret_data,
+                                                admin_name=admin_name)
+  else:
+    return redirect(url_for('admin_login'))
+
+@app.route("/admin_login", methods=['GET', 'POST'])
+def admin_login():
+  session.clear()
+  if request.method == 'POST':
+    username = get_post_val(None, 'username')
+    password = get_post_val(None, 'password')
+    admin = admin_db.login_auth(username, password)
+    if not admin:
+      ret_msg = "Admin does not exist, or wrong password. Try again!"
+      return render_template('admin_login.html', ret_msg=ret_msg)
+    session['username'] = username
+    session['admin_name'] = admin['first_name'] + ' ' + admin['last_name']
+    return redirect(url_for('events_admin'))
+  else:
+    return render_template('admin_login.html')
 
 
 if __name__ == "__main__":

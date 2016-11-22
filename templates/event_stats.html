@@ -11,10 +11,12 @@
 <body>
 
 <div class="container">
-  <h2>{{ event_title.decode('utf-8') }}</h2>
-  <p><br/></p>
-  <p>
+  <h1 align="center" style="padding:15px"><strong>{{ event_title.decode('utf-8') }}</strong></h1>
+  <h3 align="center">{{ week_str }}</h2>
+  <table class="table table-striped">
+  <p align="right">
   <form action="event_stats" method="post">
+   <p align="right">
    <input type="hidden" name = "event_id" value = "{{ event_id }}">
    <button type = "submit" name = "week_idx" value = {{ 0 }} class = "btn btn-primary btn-xs">
       First
@@ -32,10 +34,8 @@
       Last
    </button>
    </input>
-   </form>
-</p>
-  <table class="table">
-  <caption>{{ week_str }}</caption>
+   </p> 
+  </form>
   <thead class="thead-inverse">
     <tr>
       <th>Participant</th>
