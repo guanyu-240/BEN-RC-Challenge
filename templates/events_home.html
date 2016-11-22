@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>BEN Running Club Events</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Welcome to BEN Running Club</h2>
+  <p><br/></p>
+  <form class="form-horizontal" action="event_stats" method="post">{% for e in events %}
+    <div class="form-group">
+    <button type = "submit" name = "event_id" value = "{{ e[0] }}" class = "btn btn-primary btn-lg" {{ e[4] }}>
+    {{ e[1].decode('utf-8') }}
+    </button>
+    </div>{% endfor %}
+  </form>
+</div>
+
+</body>
+</html>

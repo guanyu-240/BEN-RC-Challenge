@@ -4,6 +4,7 @@ from stravalib.strava import Strava, process_activity
 from event import EventConfig 
 import ConfigParser
 from datetime import datetime
+from pytz import timezone
 
 app = Flask(__name__)
 event_data_map = {}
@@ -40,6 +41,17 @@ def get_post_val(default_val, key):
   if val is None: return default_val
   return val
   
+@app.route("/events_home", methods=["GET"])
+def events_home():
+  today = datetime.now(timezone('US/Eastern')).date()
+  ret_data=[]
+  for e_id, e_info in events.iteritems():
+    state = 'active' if today >= e_info['start_date'] and \
+                     today <= e_info['end_date'] \
+            else 'disabled'
+    ret_data.append((e_id, e_info['title'], e_info['start_date'], e_info['end_date'], state))
+  ret_data = sorted(ret_data, key=lambda x: x[2])
+  return render_template('events_home.html', events=ret_data)
 
 @app.route("/event_register", methods=['GET', 'POST'])
 def event_register():
