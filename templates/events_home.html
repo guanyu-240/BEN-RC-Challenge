@@ -5,13 +5,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="static/css/home.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-
 <div class="container">
-  <h1 align="center" style="padding:20px">Welcome to BEN Running Club</h1>
+  <div class="jumbotron" id="page_header_1">
+    <h1 id="ben_header"><img src="static/images/BEN.jpg" class="img-circle" width="120" height="120"/>&nbsp;&nbsp;BEN</h1> 
+    <p align="right" id="admin_login"><a href="admin_login" id="admin_login_link">Admin Login</a></p>
+  </div>
+</div>
+<div class="container">
+  <p class="ben_section_header">Who are we</p>
+  <p id="intro">
+  BEN is a Chinese running group in Greater Boston Area. </br>
+  Our running group was created in 2012, by a group of Chinese running enthusiasts in Boston. Since then, some of us train hard for races of distances anywhere from a mile to 100 miles. Others simply enjoy daily conversational runs with fellow endorphin addicts.</p>
+
+</div>
+<div class="container">
+  <p class="ben_section_header">Our Events</p>
   <form class="form-horizontal" action="event_stats" method="post">{% for e in events %}
     <div class="form-group" align="center">
     <button type = "submit" name = "event_id" value = "{{ e[0] }}" class = "btn btn-primary btn-lg" {{ e[4] }}>

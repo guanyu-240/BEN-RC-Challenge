@@ -5,14 +5,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+  <link rel="stylesheet" href="static/css/home.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-
 <div class="container">
-  <h1 align="center" style="padding:15px"><strong>{{ event_title.decode('utf-8') }}</strong></h1>
-  <h3 align="center">{{ week_str }}</h2>
+  <div class="jumbotron" id="page_header_1">
+    <h1 id="ben_header"><img src="static/images/BEN.jpg" class="img-circle" width="120" height="120"/>&nbsp;&nbsp;BEN</h1>
+    <p align="right" id="admin_login"><a href="admin_login" id="admin_login_link">Admin Login</a></p>
+  </div>
+</div>
+<div class="container">
+  <h2 align="center"><strong>{{ event_title.decode('utf-8') }}</strong></h1>
+  <h4 align="center">{{ week_str }}</h4>
   <table class="table table-striped">
   <p align="right">
   <form action="event_stats" method="post">

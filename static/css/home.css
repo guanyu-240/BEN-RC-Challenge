@@ -1,0 +1,39 @@
+#page_header_1 {
+  padding: 0px 0px 3px 0px;
+}
+
+#ben_header {
+  padding: 20px 20px 20px 40px;
+  background-color: #729adb; 
+  border-radius: 5px;
+  color: #ffffff; 
+  font-family: 'Raleway',sans-serif; 
+  font-weight: 800; 
+  line-height: 72px;
+}
+
+#welcome {
+  display: inline;
+}
+#admin_login {
+  margin: 0px 10px 0px 0px;
+}
+
+#admin_login_link{
+  color: #6600cc;
+  font-family: 'Raleway',sans-serif;
+  font-size: 16px;
+}
+
+p.ben_section_header{
+  margin: 0px 40px 15px 40px;
+  padding: 0px 0px 0px 10px;
+  font-size: 35px;
+  border-bottom: 5px solid #5c5c3d;
+}
+
+#intro{
+  margin: 0px 40px 0px 40px;
+  padding: 0px 15px 15px 15px;
+  font-size: 20px;
+}
