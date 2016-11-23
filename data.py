@@ -85,6 +85,11 @@ class EventData:
       v['weekly_scores'][week_idx] = score 
 
   def get_weekly_data(self, week_idx):
+    """
+    Get the data of the given week index
+    Including the distances on all 7 days and adjusted scores
+    for all the participants
+    """
     ret = []
     if week_idx >= self.numWeeks or week_idx < 0: return ["Week:", []]
     week_start = self.__startDate + timedelta(week_idx*7)
@@ -109,6 +114,10 @@ class EventData:
   def add_activity(self, strava_activity):
     """
     Add an activity
+    An activity is considered invalid if
+    Pace > 11 min/mile for a male athlete
+    Pace > 12 min/mile for a female athlete
+    If the activity is manual, add it to the pending queue
     """
     activity_id = strava_activity['id']
     if activity_id in self.rejected_activities:
@@ -140,6 +149,9 @@ class EventData:
     return True
 
   def approve_pending_activity(self, activity_id):
+    """
+    Approve a pending activity
+    """
     activity = self.pending_activities.get(str(activity_id))  
     del self.pending_activities[str(activity_id)]
     if not activity: return False
@@ -150,11 +162,17 @@ class EventData:
     activities[idx] = {str(activity_id): distance}
 
   def reject_pending_activity(self, activity_id):
+    """
+    Reject a pending activity
+    """
     if str(activity_id) in self.pending_activities: 
       del self.pending_activities[str(activity_id)]
     self.rejected_activities.add(int(activity_id))
 
   def save_data(self):
+    """
+    Save the data to the file
+    """
     fr = open(self.__dataFile, 'w')
     fr.write(JSONEncoder().encode(self.__data))
     fr.close()
