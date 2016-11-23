@@ -8,6 +8,9 @@ class AdminDB:
     self.__cfg.read(cfg_file)
 
   def login_auth(self, username, passwd):
+    """
+    Login authentication
+    """
     if username and passwd and self.__cfg.has_section(username):
       pwd_hash = self.__cfg.get(username, 'password_hash')
       passwd = passwd.encode('utf-8')
