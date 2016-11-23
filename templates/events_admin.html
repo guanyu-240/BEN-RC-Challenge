@@ -12,14 +12,35 @@
 
 <div class="container">
   <h1 align="center" style="padding:20px">Welcome to Event Admin Portal</h1>
-  <h3 align="center">Hello, {{ admin_name }}</h3>
-  <form class="form-horizontal" action="event_stats" method="post">{% for e in events %}
+  <h3 align="center">Hello, {{ session.get('admin_name') }}</h3><br>{% if events %}
+  <form class="form-horizontal" action="events_admin" method="post">{% for e in events %}
     <div class="form-group" align="center">
     <button type = "submit" name = "event_id" value = "{{ e[0] }}" class = "btn btn-primary btn-lg" {{ e[4] }}>
     {{ e[1].decode('utf-8') }}
     </button>
     </div>{% endfor %}
-  </form>
+  </form> {% else %}
+  <h4><strong>Activities Pending Approval<strong></h4>
+  <table class="table table-striped">
+  <form action="activity_approval" method="post">{% for a in pending_activities %}
+    <div class="form-group" align="center">
+    <tr>
+      <input type="hidden" name = "activity_id" value = "{{ a }}" />
+      <th><a href="https://www.strava.com/activities/{{ a }}">{{ a }}</a></td>
+      <td>
+        <button type = "submit" name = "approve" value = "yes" class = "btn btn-primary btn-md">
+        Approve
+        </button>
+      </td>
+      <td>
+        <button type = "submit" name = "approve" value = "no" class = "btn btn-primary btn-md">
+        Reject
+        </button>
+      </td>
+    </div>{% endfor %}
+  </form> 
+  </table>{% endif %}
+
 </div>
 
 </body>

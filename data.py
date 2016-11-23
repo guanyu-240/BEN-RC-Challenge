@@ -33,6 +33,8 @@ class EventData:
     self.__endDate = end_date
     self.numDays = 1+(self.__endDate-self.__startDate).days
     self.numWeeks = self.numDays/7
+    self.pending_activities = {}
+    self.rejected_activities = set()
 
   def add_athlete(self, first_name, last_name, athlete_id):
     """
@@ -109,6 +111,8 @@ class EventData:
     Add an activity
     """
     activity_id = strava_activity['id']
+    if activity_id in self.rejected_activities:
+      return False
     athlete_id = strava_activity['athlete']['id']
     gender = strava_activity['athlete']['sex']
     distance = strava_activity['distance']
@@ -124,10 +128,31 @@ class EventData:
     if athlete is None: return False
     activities = athlete['activities']
     idx = (activity_date-self.__startDate).days
+    if activities[idx] and str(activity_id) in activities[idx]:
+      return False
+    if strava_activity['manual']:
+      print 'Found a manual activity!'
+      self.pending_activities[str(activity_id)] = (str(athlete_id), idx, distance)
+      return False
     if activities[idx] is None:
       activities[idx] = {str(activity_id): distance}
     else: activities[idx][str(activity_id)] = distance
     return True
+
+  def approve_pending_activity(self, activity_id):
+    activity = self.pending_activities.get(str(activity_id))  
+    del self.pending_activities[str(activity_id)]
+    if not activity: return False
+    athlete,idx,distance = activity[0],activity[1],activity[2]
+    athlete = self.__data.get(athlete)
+    if athlete is None: return False
+    activities = athlete['activities']
+    activities[idx] = {str(activity_id): distance}
+
+  def reject_pending_activity(self, activity_id):
+    if str(activity_id) in self.pending_activities: 
+      del self.pending_activities[str(activity_id)]
+    self.rejected_activities.add(int(activity_id))
 
   def save_data(self):
     fr = open(self.__dataFile, 'w')

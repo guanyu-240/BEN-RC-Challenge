@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import sys
 from flask import Flask, render_template
 from flask import request, redirect, url_for, session
 from stravalib.strava import Strava, process_activity
@@ -29,21 +30,22 @@ strava_obj = Strava(access_token)
 # load admin info
 admin_db = AdminDB('admins.cfg')
 
-last_updated_time = datetime.now()
+last_updated_time = None 
 
 def update_data(data):
   global last_updated_time
   now = datetime.now()
-  if (now - last_updated_time).seconds < 100: return
-  try:
-    activities = strava_obj.getClubActivitiesCurWeek(club_id, time_zone='US/Eastern')
-    for a in activities:
+  if last_updated_time and (now - last_updated_time).seconds < 100: return
+  activities = strava_obj.getClubActivitiesCurWeek(club_id, time_zone='US/Eastern')
+  for a in activities:
+    try:
       a = process_activity(a)
       data.add_activity(a)
-    data.update_weekly_scores(data.get_current_week_idx())
-    data.save_data()
-  except:
-    print 'Error in update!'
+    except:
+      print "Error in update:", sys.exc_info()[0]
+      continue
+  data.update_weekly_scores(data.get_current_week_idx())
+  data.save_data()
   last_updated_time = now
 
 def get_post_val(default_val, key):
@@ -111,16 +113,49 @@ def event_stats():
                              last_week_idx=last_week_idx)
 
 
-@app.route("/events_admin", methods=['GET'])
+@app.route("/events_admin", methods=['GET', 'POST'])
 def events_admin():
   username = session.get('username')
   admin_name = session.get('admin_name')
-  if username and admin_name:
-    ret_data = get_events_list()
-    return render_template('events_admin.html', events=ret_data,
-                                                admin_name=admin_name)
-  else:
+  if not (username and admin_name):
     return redirect(url_for('admin_login'))
+  if request.method == 'GET':
+    ret_data = get_events_list()
+    return render_template('events_admin.html', events=ret_data)
+  else:
+    event_id = get_post_val(None, 'event_id')
+    if not event_id: return "Event not found!"
+    data = event_cfg.load_event_data(event_id)
+    if not data: return "Event data unavailable!"
+    session['event_id'] = event_id
+    for x in data.pending_activities:
+      print x
+    return render_template('events_admin.html', 
+                               event_id=event_id,
+                               pending_activities=data.pending_activities)
+
+
+@app.route("/activity_approval", methods=['POST'])
+def activity_approval():
+  username = session.get('username')
+  admin_name = session.get('admin_name')
+  if not (username and admin_name):
+    return redirect(url_for('admin_login'))
+  event_id = session.get('event_id')
+  if not event_id: return "Event not found!"
+  data = event_cfg.load_event_data(event_id)
+  if not data: return "Event data unavailable!"
+  activity_id = get_post_val(None, 'activity_id')
+  approve = get_post_val(None, 'approve')
+  if approve == 'yes':
+    data.approve_pending_activity(activity_id)
+    data.save_data()
+  else: data.reject_pending_activity(activity_id)
+  return render_template('events_admin.html', 
+                             event_id=event_id,
+                             pending_activities=data.pending_activities)
+
+
 
 @app.route("/admin_login", methods=['GET', 'POST'])
 def admin_login():
@@ -137,6 +172,8 @@ def admin_login():
     return redirect(url_for('events_admin'))
   else:
     return render_template('admin_login.html')
+
+
 
 
 if __name__ == "__main__":
