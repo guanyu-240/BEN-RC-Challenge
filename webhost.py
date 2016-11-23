@@ -64,6 +64,13 @@ def get_events_list():
   ret_data = sorted(ret_data, key=lambda x: x[2])
   return ret_data
 
+"""
+App routes
+"""
+@app.route('/static/<path:path>')
+def send_js(path):
+    return send_from_directory('static', path)
+
 @app.route("/events_home", methods=["GET"])
 def events_home():
   ret_data = get_events_list()
