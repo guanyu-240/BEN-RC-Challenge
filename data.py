@@ -140,7 +140,6 @@ class EventData:
     if activities[idx] and str(activity_id) in activities[idx]:
       return False
     if strava_activity['manual']:
-      print 'Found a manual activity!'
       self.pending_activities[str(activity_id)] = (str(athlete_id), idx, distance)
       return False
     if activities[idx] is None:

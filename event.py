@@ -14,6 +14,9 @@ class EventConfig:
     self.__load_events()
 
   def __load_events(self):
+    """
+    Load events from the config file
+    """
     event_ids = self.__cfg.sections()
     for e_id in event_ids:
       self.__addToMap(e_id)
@@ -31,6 +34,11 @@ class EventConfig:
             'data': None}
 
   def load_event_data(self, e_id):
+    """
+    Load event data instance into the memory,
+    If the instance is already loaded, just return it,
+    otherwise load it from JSON data file
+    """
     ret = None
     if e_id not in self.events: return ret
     ret = self.events[e_id].get('data')
@@ -42,6 +50,9 @@ class EventConfig:
     return ret
 
   def add_event(self, event_id, event_title, start_date, end_date):
+    """
+    Add an event
+    """
     if event_id is None or \
        event_title is None or \
        start_date is None or \

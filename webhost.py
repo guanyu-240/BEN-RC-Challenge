@@ -32,10 +32,19 @@ admin_db = AdminDB('admins.cfg')
 
 last_updated_time = None 
 
+
 def update_data(data):
+  """
+  Query data from Strava server and make updates.
+  Restricted by the limit of Strava server,
+  the website can only make at most 600 requests every 15 minutes
+  Here just set the updating frequency to be 1 min.
+  If there are 3 data instances, if instance-1 update at '2016-11-20 0:00',
+  any other instance can not make query/updates before '2016-11-20 0:01'
+  """
   global last_updated_time
   now = datetime.now()
-  if last_updated_time and (now - last_updated_time).seconds < 100: return
+  if last_updated_time and (now - last_updated_time).seconds < 60: return
   activities = strava_obj.getClubActivitiesCurWeek(club_id, time_zone='US/Eastern')
   for a in activities:
     try:
@@ -49,11 +58,17 @@ def update_data(data):
   last_updated_time = now
 
 def get_post_val(default_val, key):
+  """
+  Get the value with the given key in a 'POST' request
+  """
   val = request.form.get(key)
   if val is None: return default_val
   return val
   
 def get_events_list():
+  """
+  Return the list of events
+  """
   today = datetime.now(timezone('US/Eastern')).date()
   ret_data=[]
   for e_id, e_info in events.iteritems():
@@ -67,16 +82,20 @@ def get_events_list():
 """
 App routes
 """
+# handle the requests for static files, including css or images
 @app.route('/static/<path:path>')
-def send_js(path):
+def static(path):
     return send_from_directory('static', path)
 
+
+# home page
 @app.route("/events_home", methods=["GET"])
 def events_home():
   ret_data = get_events_list()
   return render_template('events_home.html', events=ret_data)
 
 
+# event register
 @app.route("/event_register", methods=['GET', 'POST'])
 def event_register():
   event_id = onload_event
@@ -97,6 +116,7 @@ def event_register():
     return render_template('event_registration.html')
 
 
+# event statistics
 @app.route("/event_stats", methods=['GET','POST'])
 def event_stats():
   event_id = get_post_val(onload_event, 'event_id')
@@ -120,6 +140,7 @@ def event_stats():
                              last_week_idx=last_week_idx)
 
 
+# homepage of admin portal
 @app.route("/events_admin", methods=['GET', 'POST'])
 def events_admin():
   username = session.get('username')
@@ -142,6 +163,7 @@ def events_admin():
                                pending_activities=data.pending_activities)
 
 
+# pending activity approval/reject actions
 @app.route("/activity_approval", methods=['POST'])
 def activity_approval():
   username = session.get('username')
@@ -163,7 +185,7 @@ def activity_approval():
                              pending_activities=data.pending_activities)
 
 
-
+# admin login page/login actions
 @app.route("/admin_login", methods=['GET', 'POST'])
 def admin_login():
   session.clear()
