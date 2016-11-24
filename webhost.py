@@ -72,9 +72,7 @@ def get_events_list():
   today = datetime.now(timezone('US/Eastern')).date()
   ret_data=[]
   for e_id, e_info in events.iteritems():
-    state = 'active' if today >= e_info['start_date'] and \
-                     today <= e_info['end_date'] \
-            else 'disabled'
+    state = 'active' if today >= e_info['start_date'] else 'disabled'
     ret_data.append((e_id, e_info['title'], e_info['start_date'], e_info['end_date'], state))
   ret_data = sorted(ret_data, key=lambda x: x[2])
   return ret_data
