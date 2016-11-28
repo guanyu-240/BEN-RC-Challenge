@@ -152,8 +152,8 @@ class EventData:
     Approve a pending activity
     """
     activity = self.pending_activities.get(str(activity_id))  
-    del self.pending_activities[str(activity_id)]
     if not activity: return False
+    del self.pending_activities[str(activity_id)]
     athlete,idx,distance = activity[0],activity[1],activity[2]
     athlete = self.__data.get(athlete)
     if athlete is None: return False
