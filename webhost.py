@@ -53,7 +53,7 @@ def update_data(data):
     except:
       print "Error in update:", sys.exc_info()[0]
       continue
-  data.update_weekly_scores(data.get_current_week_idx())
+  data.update_weekly_scores(data.get_current_week_idx(time_zone='US/Eastern'))
   data.save_data()
   last_updated_time = now
 
