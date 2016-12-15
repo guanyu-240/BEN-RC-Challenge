@@ -178,10 +178,7 @@ def activity_approval():
     data.approve_pending_activity(activity_id)
     data.save_data()
   else: data.reject_pending_activity(activity_id)
-  return render_template('events_admin.html', 
-                             event_id=event_id,
-                             pending_activities=data.pending_activities)
-
+  return redirect(url_for('events_admin'))
 
 # admin login page/login actions
 @app.route("/admin_login", methods=['GET', 'POST'])
