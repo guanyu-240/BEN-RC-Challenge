@@ -2,7 +2,7 @@
 import sys
 from flask import Flask, render_template
 from flask import request, redirect, url_for, session
-from stravalib.strava import Strava, process_activity
+from gwrunninglib.strava import Strava, process_activity
 from event import EventConfig 
 from admin import AdminDB
 import ConfigParser
@@ -80,11 +80,12 @@ def get_events_list():
 """
 App routes
 """
+'''
 # handle the requests for static files, including css or images
 @app.route('/static/<path:path>')
 def static(path):
     return send_from_directory('static', path)
-
+'''
 
 # home page
 @app.route("/events_home", methods=["GET"])

@@ -3,7 +3,7 @@
 import os
 from json import JSONEncoder,JSONDecoder
 from datetime import datetime,date,timedelta
-from stravalib.strava import convert_datestr
+from gwrunninglib.strava import convert_datestr
 from pytz import timezone
 """
 Event data json format:
@@ -17,8 +17,12 @@ strava_id:
   }
 }
 """
+
+TYPE_MILEAGE = 1
+TYPE_STREAK = 2
+
 class EventData:
-  def __init__(self, file_name, start_date, end_date):
+  def __init__(self, file_name, start_date, end_date, event_type):
     self.__dataFile = file_name
     if os.path.isfile(file_name):
       fr = open(file_name)
@@ -31,6 +35,7 @@ class EventData:
       self.__data = {}
     self.__startDate = start_date
     self.__endDate = end_date
+    self.__type = TYPE_MILEAGE if not event_type else event_type
     self.numDays = 1+(self.__endDate-self.__startDate).days
     self.numWeeks = self.numDays/7
     self.pending_activities = {}
@@ -63,9 +68,9 @@ class EventData:
     ret = (today-self.__startDate).days/7
     return min(max(ret, 0), self.numWeeks)
 
-  def update_weekly_scores(self, week_idx):
+  def update_weekly_streak_scores(self, week_idx):
     """
-    Calculate weekly score
+    Calculate weekly running streak score for all athletes
     """
     if week_idx >= self.numWeeks: return
     for k,v in self.__data.iteritems():
@@ -83,6 +88,26 @@ class EventData:
       if (drought > 0): penalty += (drought - 1)
       score = min(max(base_score - penalty, 0), 6)
       v['weekly_scores'][week_idx] = score 
+
+  def update_weekly_mileages(self, week_idx):
+    """
+    Calculate weekly mileages for all athletes
+    """
+    if week_idx >= self.numWeeks: return
+    for k,v in self.__data.iteritems():
+      activities = v['activities']
+      mileages = 0.0
+      for i in range(7):
+        if activities[week_idx*7+i] is not None:
+          for a_id,m in activities[week_idx*7+i].iteritems():
+            mileages += float(m)
+      v['weekly_scores'][week_idx] = round(mileages, 2)
+
+  def update_weekly_scores(self, week_idx):
+    if self.__type == TYPE_MILEAGE:
+      self.update_weekly_mileages(week_idx)
+    elif self.__type == TYPE_STREAK:
+      self.update_weekly_streak_scores(week_idx)
 
   def get_weekly_data(self, week_idx):
     """
