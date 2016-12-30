@@ -37,3 +37,10 @@ p.ben_section_header{
   padding: 0px 15px 15px 15px;
   font-size: 20px;
 }
+
+p.admin_section_header{
+  margin: 5px 0px 8px 0px;
+  padding: 0px 0px 0px 0px;
+  font-size: 20px;
+  border-bottom: 3px solid #5c5c3d;
+}

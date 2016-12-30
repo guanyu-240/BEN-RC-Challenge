@@ -93,28 +93,6 @@ def events_home():
   ret_data = get_events_list()
   return render_template('events_home.html', events=ret_data)
 
-
-# event register
-@app.route("/event_register", methods=['GET', 'POST'])
-def event_register():
-  event_id = onload_event
-  if request.method == 'POST':
-    event_id = onload_event
-    event_id = get_post_val(event_id, 'event_id')
-    first_name = get_post_val(None, 'first_name')
-    last_name = get_post_val(None, 'last_name')
-    data = event_data_map.get(event_id)
-    if data:
-      ret = data.register_athlete(first_name, last_name, strava_obj.listClubMembers(club_id))
-      data.save_data()
-      if ret: ret_msg = "Athlete registered successfully!"
-      else: ret_msg = "Athlete already registered or not in strava group!"
-    else: ret_msg = "Can not register!"
-    return render_template('event_registration.html', ret_msg=ret_msg)
-  else:
-    return render_template('event_registration.html')
-
-
 # event statistics
 @app.route("/event_stats", methods=['GET','POST'])
 def event_stats():
@@ -146,20 +124,44 @@ def events_admin():
   admin_name = session.get('admin_name')
   if not (username and admin_name):
     return redirect(url_for('admin_login'))
-  if request.method == 'GET':
+  event_id = get_post_val(None, 'event_id')
+  if not event_id:
+    event_id = session.get('event_id')
+  if not event_id: 
     ret_data = get_events_list()
     return render_template('events_admin.html', events=ret_data)
-  else:
-    event_id = get_post_val(None, 'event_id')
-    if not event_id: return "Event not found!"
-    data = event_cfg.load_event_data(event_id)
-    if not data: return "Event data unavailable!"
-    session['event_id'] = event_id
-    for x in data.pending_activities:
-      print x
-    return render_template('events_admin.html', 
-                               event_id=event_id,
-                               pending_activities=data.pending_activities)
+  data = event_cfg.load_event_data(event_id)
+  if not data: return "Event data unavailable!"
+  session['event_id'] = event_id
+  register_ret = session.get('register_ret')
+  if register_ret:
+    session.pop('register_ret', None)
+  return render_template('events_admin.html', 
+                             event_id=event_id,
+                             ret_msg=register_ret,
+                             pending_activities=data.pending_activities)
+
+# event register
+@app.route("/event_register", methods=['POST'])
+def event_register():
+  username = session.get('username')
+  admin_name = session.get('admin_name')
+  if not (username and admin_name):
+    return redirect(url_for('admin_login'))
+  event_id = session.get('event_id')
+  if not event_id: return "Event not found!"
+  data = event_cfg.load_event_data(event_id)
+  if not data: return "Event data unavailable!"
+  first_name = get_post_val(None, 'first_name')
+  last_name = get_post_val(None, 'last_name')
+  if data:
+    ret = data.register_athlete(first_name, last_name, strava_obj.listClubMembers(club_id))
+    data.save_data()
+    if ret: ret_msg = "Athlete registered successfully!"
+    else: ret_msg = "Athlete already registered or not in strava group!"
+  else: ret_msg = "Can not register!"
+  session['register_ret'] = ret_msg
+  return redirect(url_for('events_admin'))
 
 
 # pending activity approval/reject actions
