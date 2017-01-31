@@ -46,13 +46,14 @@
     <tr>
       <th>Participant</th>
       <th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th><th>SUN</th>
-      <th>Score</th>
+      <th>Score</th><th>Total Score</th>
     </tr>
   </thead>
   <tbody>{% for x in weekly_data %} <tr>
       <th scope="row">{{ x['name'] }}</th>
       {% for i in range(7) %}<td>{{ x['workouts'][i] }}</td>{% endfor %}
       <td>{{ x['score'] }}</td>
+      <td>{{ x['total_score'] }}</td>
       </tr>
   {% endfor %}</tbody>
   </table>

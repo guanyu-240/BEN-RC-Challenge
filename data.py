@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+from decimal import Decimal
 from json import JSONEncoder,JSONDecoder
 from datetime import datetime,date,timedelta
 from gwrunninglib.strava import convert_datestr
@@ -132,7 +133,8 @@ class EventData:
         else: workouts_stats.append('')
       entry = {'name': v['first_name'] + ' ' + v['last_name'],
                'workouts': workouts_stats, 
-               'score': v['weekly_scores'][week_idx]}
+               'score': v['weekly_scores'][week_idx],
+               'total_score': sum(Decimal(i) for i in v['weekly_scores'])}
       ret.append(entry)
     return [week_str, ret]
 
