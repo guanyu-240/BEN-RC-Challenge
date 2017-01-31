@@ -36,13 +36,15 @@ p.ben_section_header{
 #intro{
   margin: 0px 40px 0px 40px;
   padding: 0px 15px 15px 15px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 #stats{
   padding-left: 5%;
   padding-right: 5%;
   margin-bottom: 20px;
+  font-size: 15px;
+  font-family: "Calibri";
 }
 
 p.admin_section_header{
