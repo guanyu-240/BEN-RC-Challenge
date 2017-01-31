@@ -131,10 +131,13 @@ class EventData:
             distance += m
           workouts_stats.append("{0:.1f}".format(distance))
         else: workouts_stats.append('')
+      total_score = sum(Decimal(i) for i in v['weekly_scores'])
+      if self.__type == TYPE_MILEAGE:
+        total_score = round(total_score, 2)
       entry = {'name': v['first_name'] + ' ' + v['last_name'],
                'workouts': workouts_stats, 
                'score': v['weekly_scores'][week_idx],
-               'total_score': sum(Decimal(i) for i in v['weekly_scores'])}
+               'total_score': total_score}
       ret.append(entry)
     return [week_str, ret]
 
