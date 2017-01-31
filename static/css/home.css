@@ -1,5 +1,6 @@
 #page_header_1 {
   padding: 0px 0px 3px 0px;
+  margin-bottom: 0;
 }
 
 #ben_header {
@@ -36,6 +37,12 @@ p.ben_section_header{
   margin: 0px 40px 0px 40px;
   padding: 0px 15px 15px 15px;
   font-size: 20px;
+}
+
+#stats{
+  padding-left: 5%;
+  padding-right: 5%;
+  margin-bottom: 20px;
 }
 
 p.admin_section_header{
