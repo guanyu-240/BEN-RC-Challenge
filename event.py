@@ -22,6 +22,8 @@ class EventConfig:
       self.__addToMap(e_id)
 
   def __addToMap(self, e_id):
+     event_type = None if not self.__cfg.has_option(e_id, 'event_type') \
+                  else self.__cfg.getint(e_id, 'event_type')
      if self.__cfg.has_option(e_id, 'event_title') and \
         self.__cfg.has_option(e_id, 'start_date') and \
         self.__cfg.has_option(e_id, 'end_date') and \
@@ -30,6 +32,7 @@ class EventConfig:
             'title': self.__cfg.get(e_id, 'event_title'),
             'start_date': convert_date_str(self.__cfg.get(e_id, 'start_date')),
             'end_date': convert_date_str(self.__cfg.get(e_id, 'end_date')),
+            'event_type': event_type,
             'data_file': self.__cfg.get(e_id, 'data_file'),
             'data': None}
 
@@ -45,7 +48,8 @@ class EventConfig:
     if ret is None:
       ret = EventData(self.events[e_id]['data_file'],
                       self.events[e_id]['start_date'],
-                      self.events[e_id]['end_date'])
+                      self.events[e_id]['end_date'],
+                      self.events[e_id]['event_type'])
       self.events[e_id]['data'] = ret
     return ret
 

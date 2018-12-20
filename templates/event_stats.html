@@ -12,11 +12,11 @@
 <body>
 <div class="container">
   <div class="jumbotron" id="page_header_1">
-    <h1 id="ben_header"><img src="static/images/BEN.jpg" class="img-circle" width="120" height="120"/>&nbsp;&nbsp;BEN</h1>
+    <h1 id="ben_header"><img src="static/images/BEN.jpg" class="img-circle" width="120" height="120"/>&nbsp;&nbsp;BEN Running Club</h1>
     <p align="right" id="admin_login"><a href="admin_login" id="admin_login_link">Admin Login</a></p>
   </div>
 </div>
-<div class="container">
+<div id="stats" class="container">
   <h2 align="center"><strong>{{ event_title.decode('utf-8') }}</strong></h1>
   <h4 align="center">{{ week_str }}</h4>
   <table class="table table-striped">
@@ -46,17 +46,23 @@
     <tr>
       <th>Participant</th>
       <th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th><th>SUN</th>
-      <th>Score</th>
+      <th>Score</th><th>Total Score</th>
     </tr>
   </thead>
   <tbody>{% for x in weekly_data %} <tr>
       <th scope="row">{{ x['name'] }}</th>
       {% for i in range(7) %}<td>{{ x['workouts'][i] }}</td>{% endfor %}
       <td>{{ x['score'] }}</td>
+      <td>{{ x['total_score'] }}</td>
       </tr>
   {% endfor %}</tbody>
   </table>
 
 </div>
 </body>
+<footer class="footer">
+  <div class="container" align="center">
+    <p class="text-muted">© Copyright 2016-2017 Guanyu Wang, BEN Running Club</p>
+  </div>
+</footer>
 </html>

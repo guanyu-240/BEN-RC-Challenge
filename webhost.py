@@ -82,7 +82,6 @@ def events_home():
   ret_data = get_events_list()
   return render_template('events_home.html', events=ret_data)
 
-
 # Authorize
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -137,7 +136,6 @@ def event_stats():
                              weekly_data=weekly_data[1], \
                              week_idx=week_idx, \
                              last_week_idx=last_week_idx)
-
 
 
 if __name__ == "__main__":

@@ -1,10 +1,11 @@
 #page_header_1 {
   padding: 0px 0px 3px 0px;
+  margin-bottom: 0;
 }
 
 #ben_header {
   padding: 20px 20px 20px 40px;
-  background-color: #729adb; 
+  background-color: #423939; 
   border-radius: 5px;
   color: #ffffff; 
   font-family: 'Raleway',sans-serif; 
@@ -35,5 +36,20 @@ p.ben_section_header{
 #intro{
   margin: 0px 40px 0px 40px;
   padding: 0px 15px 15px 15px;
+  font-size: 18px;
+}
+
+#stats{
+  padding-left: 5%;
+  padding-right: 5%;
+  margin-bottom: 20px;
+  font-size: 15px;
+  font-family: "Calibri";
+}
+
+p.admin_section_header{
+  margin: 5px 0px 8px 0px;
+  padding: 0px 0px 0px 0px;
   font-size: 20px;
+  border-bottom: 3px solid #5c5c3d;
 }
