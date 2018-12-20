@@ -3,7 +3,9 @@
 import os
 from json import JSONEncoder,JSONDecoder
 from datetime import datetime,date,timedelta
-from stravalib.strava import convert_datestr
+import calendar, time
+from stravalib.strava import Strava, process_activity, convert_datestr
+from stravalib.strava_oauth2 import StravaAuth
 from pytz import timezone
 """
 Event data json format:
@@ -33,30 +35,38 @@ class EventData:
     self.__endDate = end_date
     self.numDays = 1+(self.__endDate-self.__startDate).days
     self.numWeeks = self.numDays/7
-    self.pending_activities = {}
-    self.rejected_activities = set()
 
-  def add_athlete(self, first_name, last_name, athlete_id):
+  def register_athlete(self, auth_res):
     """
     Add an athlete
     """
-    if str(athlete_id) in self.__data: return
-    entry = {'first_name': first_name,
-             'last_name': last_name,
+    athlete = auth_res['athlete']
+    
+    if str(athlete['id']) in self.__data: return
+    entry = {'first_name': athlete['firstname'],
+             'last_name': athlete['lastname'],
+             'gender': athlete['sex'],
+             'access_token': auth_res['access_token'],
+             'refresh_token': auth_res['refresh_token'],
+             'token_expires_at': auth_res['expires_at'], 
              'activities': [None for i in range(self.numDays)],
              'weekly_scores': [0 for i in range(self.numWeeks)]}
-    self.__data[str(athlete_id)] = entry
+    self.__data[str(athlete['id'])] = entry
 
-  def register_athlete(self, first_name, last_name, strava_club_members):
+  '''
+  def register_athlete(self, auth_res, strava_club_members):
     """
     Register an athlete to this event
     """
+    athlete = auth_res['athlete']
+    
     for member in strava_club_members:
       if member['firstname'].strip().lower() == first_name.strip().lower() and \
            member['lastname'].strip().lower() == last_name.strip().lower():
-        self.add_athlete(first_name.strip(), last_name.strip(), member['id'])
+        self.add_athlete(first_name.strip(), last_name.strip(), strava_id)
         return True
     return False
+   '''
 
   def get_current_week_idx(self, time_zone='UTC'):
     today = datetime.now(timezone(time_zone)).date()
@@ -111,7 +121,28 @@ class EventData:
       ret.append(entry)
     return [week_str, ret]
 
-  def add_activity(self, strava_activity):
+  def update_activities(self, strava_obj, auth, time_zone):
+    """
+    Update athlete activities
+    """
+    for athlete_id, athlete_stats in self.__data.iteritems():
+      current_time = long(time.time())
+      expires_at = long(athlete_stats['token_expires_at'])
+      if expires_at - current_time <= 3600:
+        auth_res = auth.refresh_token(athlete_stats['refresh_token'])
+        if 'access_token' in auth_res:
+          athlete_stats['access_token'] = auth_res['access_token']
+          athlete_stats['token_expires_at'] = auth_res['expires_at']
+        else:
+          return
+      activities = strava_obj.listAthleteActivities(athlete_stats['access_token'], current_time, current_time-360000, None, None)
+      print activities
+      for activity in activities:
+        activity = process_activity(activity)
+        self.add_activity(athlete_stats, activity, time_zone)
+      
+
+  def add_activity(self, athlete_stats, strava_activity, time_zone):
     """
     Add an activity
     An activity is considered invalid if
@@ -119,54 +150,28 @@ class EventData:
     Pace > 12 min/mile for a female athlete
     If the activity is manual, add it to the pending queue
     """
-    activity_id = strava_activity['id']
-    if activity_id in self.rejected_activities:
+    if strava_activity['manual']:
       return False
-    athlete_id = strava_activity['athlete']['id']
-    gender = strava_activity['athlete']['sex']
+    activity_id = strava_activity['id']
+    gender = athlete_stats['gender'] 
     distance = strava_activity['distance']
     avg_pace = strava_activity['avg_pace']
-    activity_date = strava_activity['start_date'].date()
+    activity_date = convert_datestr(strava_activity['start_date'], time_zone).date()
     if activity_date > self.__endDate or activity_date < self.__startDate:
       return False
     if (gender == "M" and avg_pace > 11.0) or \
       (gender == "F" and avg_pace > 12.0) or \
       distance < 3.0:
       return False
-    athlete = self.__data.get(str(athlete_id))
-    if athlete is None: return False
-    activities = athlete['activities']
+    activities = athlete_stats['activities']
     idx = (activity_date-self.__startDate).days
     if activities[idx] and str(activity_id) in activities[idx]:
-      return False
-    if strava_activity['manual']:
-      self.pending_activities[str(activity_id)] = (str(athlete_id), idx, distance)
       return False
     if activities[idx] is None:
       activities[idx] = {str(activity_id): distance}
     else: activities[idx][str(activity_id)] = distance
     return True
 
-  def approve_pending_activity(self, activity_id):
-    """
-    Approve a pending activity
-    """
-    activity = self.pending_activities.get(str(activity_id))  
-    if not activity: return False
-    del self.pending_activities[str(activity_id)]
-    athlete,idx,distance = activity[0],activity[1],activity[2]
-    athlete = self.__data.get(athlete)
-    if athlete is None: return False
-    activities = athlete['activities']
-    activities[idx] = {str(activity_id): distance}
-
-  def reject_pending_activity(self, activity_id):
-    """
-    Reject a pending activity
-    """
-    if str(activity_id) in self.pending_activities: 
-      del self.pending_activities[str(activity_id)]
-    self.rejected_activities.add(int(activity_id))
 
   def save_data(self):
     """
