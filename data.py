@@ -96,7 +96,8 @@ class EventData:
           base_score += 1
           if (drought > 0): penalty += (drought - 1);
           drought = 0;
-      if (drought > 0): penalty += (drought - 1)
+      if (drought > 0):
+        penalty += (drought - 1)
       score = min(max(base_score - penalty, 0), 6)
       v['weekly_scores'][week_idx] = score 
 
@@ -127,7 +128,9 @@ class EventData:
     for all the participants
     """
     ret = []
-    if week_idx >= self.numWeeks or week_idx < 0: return ["Week:", []]
+    if week_idx >= self.numWeeks or week_idx < 0:
+      return ["Week:", []]
+ 
     week_start = self.__startDate + timedelta(week_idx*7)
     week_end = week_start + timedelta(6)
     week_str = 'Week: {0.month}/{0.day}/{0.year} - {1.month}/{1.day}/{1.year}'.format(week_start, week_end)
@@ -140,7 +143,8 @@ class EventData:
           for i,m in x.iteritems():
             distance += m
           workouts_stats.append("{0:.1f}".format(distance))
-        else: workouts_stats.append('')
+        else:
+          workouts_stats.append('')
       total_score = sum(Decimal(i) for i in v['weekly_scores'])
       if self.__type == TYPE_MILEAGE:
         total_score = round(total_score, 2)
@@ -182,6 +186,7 @@ class EventData:
     """
     if strava_activity['manual']:
       return False
+  
     activity_id = strava_activity['id']
     gender = athlete_stats['gender'] 
     distance = strava_activity['distance']
@@ -193,6 +198,7 @@ class EventData:
       (gender == "F" and avg_pace > 12.0) or \
       distance < 3.0:
       return False
+
     activities = athlete_stats['activities']
     idx = (activity_date-self.__startDate).days
     if activities[idx] and str(activity_id) in activities[idx]:
