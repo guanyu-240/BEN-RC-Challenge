@@ -46,7 +46,8 @@ def update_data(data):
   """
   global last_updated_time
   now = datetime.now()
-  if last_updated_time and (now - last_updated_time).seconds < 60: return
+  if last_updated_time and (now - last_updated_time).seconds < 60:
+    return
   data.update_activities(strava_obj, auth, 'US/Eastern')
   data.update_weekly_scores(data.get_current_week_idx(time_zone='US/Eastern'))
   data.save_data()
@@ -57,7 +58,8 @@ def get_post_val(default_val, key):
   Get the value with the given key in a 'POST' request
   """
   val = request.form.get(key)
-  if val is None: return default_val
+  if val is None:
+    return default_val
   return val
   
 def get_events_list():
@@ -87,9 +89,11 @@ def events_home():
 def register():
   if request.method == 'GET':
     event = events.get(event_id)
-    if event is None: return "Event not found!"
+    if event is None:
+      return "Event not found!"
     data = event_cfg.load_event_data(event_id)
-    if data is None: return 'Event data not available'
+    if data is None:
+      return 'Event data not available'
     event_title = event['title']
     return render_template('register.html', event_title=event_title)
   else:
@@ -107,7 +111,8 @@ def token_exchange():
     if 'athlete' not in auth_res:
       return auth_res
     event = events.get(event_id)
-    if event is None: return "Event not found!"
+    if event is None:
+      return "Event not found!"
     data = event_cfg.load_event_data(event_id)
     if data:
       ret = data.register_athlete(auth_res)
@@ -119,12 +124,16 @@ def token_exchange():
 @app.route("/event_stats", methods=['GET','POST'])
 def event_stats():
   event = events.get(event_id)
-  if event is None: return "Event not found!"
+  if event is None:
+    return "Event not found!"
   data = event_cfg.load_event_data(event_id)
-  if data is None: return 'Event data not available'
+  if data is None:
+    return 'Event data not available'
+
   event_title = event['title']
   week_idx = data.get_current_week_idx('US/Eastern')
   week_idx = int(get_post_val(week_idx, 'week_idx'))
+
   update_data(data)
   last_week_idx = data.numWeeks-1
   week_idx = min(max(week_idx, 0), last_week_idx)
