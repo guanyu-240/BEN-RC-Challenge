@@ -1,4 +1,4 @@
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 from bcrypt import hashpw
 
 class AdminDB:

@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 from data import EventData
 from datetime import datetime
 
@@ -8,7 +8,7 @@ def convert_date_str(s):
 class EventConfig:
   def __init__(self, cfg_file):
     self.__cfgFile = cfg_file
-    self.__cfg = ConfigParser.RawConfigParser()
+    self.__cfg = configparser.RawConfigParser()
     self.__cfg.read(cfg_file)
     self.events = {}
     self.__load_events()

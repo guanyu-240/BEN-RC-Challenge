@@ -84,7 +84,7 @@ class EventData:
     Calculate weekly running streak score for all athletes
     """
     if week_idx >= self.numWeeks: return
-    for k,v in self.__data.iteritems():
+    for k,v in self.__data.items():
       activities = v['activities']
       base_score = 0
       penalty = 0;
@@ -106,12 +106,12 @@ class EventData:
     Calculate weekly mileages for all athletes
     """
     if week_idx >= self.numWeeks: return
-    for k,v in self.__data.iteritems():
+    for k,v in self.__data.items():
       activities = v['activities']
       mileages = 0.0
       for i in range(7):
         if activities[week_idx*7+i] is not None:
-          for a_id,m in activities[week_idx*7+i].iteritems():
+          for a_id,m in activities[week_idx*7+i].items():
             mileages += float(m)
       v['weekly_scores'][week_idx] = round(mileages, 2)
 
@@ -134,13 +134,13 @@ class EventData:
     week_start = self.__startDate + timedelta(week_idx*7)
     week_end = week_start + timedelta(6)
     week_str = 'Week: {0.month}/{0.day}/{0.year} - {1.month}/{1.day}/{1.year}'.format(week_start, week_end)
-    for k,v in self.__data.iteritems():
+    for k,v in self.__data.items():
       workouts = v['activities'][7*week_idx:7*week_idx+7]
       workouts_stats = []
       for x in workouts:
         if x:
           distance = 0.0
-          for i,m in x.iteritems():
+          for i,m in x.items():
             distance += m
           workouts_stats.append("{0:.1f}".format(distance))
         else:
@@ -159,9 +159,9 @@ class EventData:
     """
     Update athlete activities
     """
-    for athlete_id, athlete_stats in self.__data.iteritems():
-      current_time = long(time.time())
-      expires_at = long(athlete_stats['token_expires_at'])
+    for athlete_id, athlete_stats in self.__data.items():
+      current_time = int(time.time())
+      expires_at = int(athlete_stats['token_expires_at'])
       if expires_at - current_time <= 3600:
         auth_res = auth.refresh_token(athlete_stats['refresh_token'])
         if 'access_token' in auth_res:
@@ -170,7 +170,7 @@ class EventData:
         else:
           return
       activities = strava_obj.listAthleteActivities(athlete_stats['access_token'], current_time, current_time-360000, None, None)
-      print activities
+      print(activities)
       for activity in activities:
         activity = process_activity(activity)
         self.add_activity(athlete_stats, activity, time_zone)

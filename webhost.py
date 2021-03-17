@@ -6,7 +6,7 @@ from stravalib.strava import Strava, process_activity
 from stravalib.strava_oauth2 import StravaAuth
 from event import EventConfig 
 from admin import AdminDB
-import ConfigParser
+import configparser
 from datetime import datetime
 from pytz import timezone
 from bcrypt import gensalt
@@ -16,7 +16,7 @@ app.secret_key = gensalt(20)
 event_data_map = {}
 
 # load website info
-cfg = ConfigParser.RawConfigParser()
+cfg = configparser.RawConfigParser()
 cfg.read('website.cfg')
 refresh_token = cfg.get('website', 'strava_refresh_token')
 club_id = cfg.getint('website', 'club_id')
@@ -68,7 +68,7 @@ def get_events_list():
   """
   today = datetime.now(timezone('US/Eastern')).date()
   ret_data=[]
-  for e_id, e_info in events.iteritems():
+  for e_id, e_info in events.items():
     state = 'active' if today >= e_info['start_date'] else 'disabled'
     ret_data.append((e_id, e_info['title'], e_info['start_date'], e_info['end_date'], state))
   ret_data = sorted(ret_data, key=lambda x: x[2])
