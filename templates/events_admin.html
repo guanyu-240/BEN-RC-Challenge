@@ -17,7 +17,7 @@
   <form class="form-horizontal" action="events_admin" method="post">{% for e in events %}
     <div class="form-group" align="center">
     <button type = "submit" name = "event_id" value = "{{ e[0] }}" class = "btn btn-primary btn-lg" {{ e[4] }}>
-    {{ e[1].decode('utf-8') }}
+    {{ e[1] }}
     </button>
     </div>{% endfor %}
   </form> {% else %}
