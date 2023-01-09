@@ -73,7 +73,7 @@ class EventData:
 
     def get_current_week_idx(self, time_zone="UTC"):
         today = datetime.now(timezone(time_zone)).date()
-        ret = (today - self.__startDate).days / 7
+        ret = int((today - self.__startDate).days / 7)
         return min(max(ret, 0), self.numWeeks)
 
     def update_weekly_streak_scores(self, week_idx):
