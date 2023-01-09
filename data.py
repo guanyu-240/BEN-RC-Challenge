@@ -1,8 +1,10 @@
 #!/usr/bin/python
 
-import os
+from __future__ import print_function
+import os, sys
 from decimal import Decimal
 from json import JSONEncoder, JSONDecoder
+import json
 from datetime import datetime, date, timedelta
 import calendar, time
 from stravalib.strava import Strava, process_activity, convert_datestr
@@ -16,7 +18,7 @@ strava_id:
   {
   first_name: string
   last_name: string
-  activities: 
+  activities:
     [{<strava_activity_id, int>:milage}]
   }
 }
@@ -43,15 +45,17 @@ class EventData:
         self.__endDate = end_date
         self.__type = TYPE_MILEAGE if not event_type else event_type
         self.numDays = 1 + (self.__endDate - self.__startDate).days
-        self.numWeeks = int(self.numDays / 7)
+        self.numWeeks = self.numDays / 7
 
     def register_athlete(self, auth_res):
         """
         Add an athlete
         """
         athlete = auth_res["athlete"]
-
         if str(athlete["id"]) in self.__data:
+            self.__data[str(athlete["id"])]["access_token"] = auth_res["access_token"]
+            self.__data[str(athlete["id"])]["refresh_token"] = auth_res["refresh_token"]
+            self.__data[str(athlete["id"])]["token_expires_at"] = auth_res["expires_at"]
             return
         entry = {
             "first_name": athlete["firstname"],
@@ -62,28 +66,15 @@ class EventData:
             "token_expires_at": auth_res["expires_at"],
             "activities": [None for i in range(self.numDays)],
             "weekly_scores": [0 for i in range(self.numWeeks)],
+            "total_mileage": 0,
+            "avg_pace": -1,
         }
         self.__data[str(athlete["id"])] = entry
 
-    '''
-  def register_athlete(self, auth_res, strava_club_members):
-    """
-    Register an athlete to this event
-    """
-    athlete = auth_res['athlete']
-    
-    for member in strava_club_members:
-      if member['firstname'].strip().lower() == first_name.strip().lower() and \
-           member['lastname'].strip().lower() == last_name.strip().lower():
-        self.add_athlete(first_name.strip(), last_name.strip(), strava_id)
-        return True
-    return False
-   '''
-
     def get_current_week_idx(self, time_zone="UTC"):
         today = datetime.now(timezone(time_zone)).date()
-        ret = int((today - self.__startDate).days / 7)
-        return min(max(ret, 0), self.numWeeks - 1)
+        ret = (today - self.__startDate).days / 7
+        return min(max(ret, 0), self.numWeeks)
 
     def update_weekly_streak_scores(self, week_idx):
         """
@@ -91,7 +82,7 @@ class EventData:
         """
         if week_idx >= self.numWeeks:
             return
-        for k, v in self.__data.items():
+        for k, v in self.__data.iteritems():
             activities = v["activities"]
             base_score = 0
             penalty = 0
@@ -115,14 +106,35 @@ class EventData:
         """
         if week_idx >= self.numWeeks:
             return
-        for k, v in self.__data.items():
+        for k, v in self.__data.iteritems():
             activities = v["activities"]
             mileages = 0.0
             for i in range(7):
                 if activities[week_idx * 7 + i] is not None:
-                    for a_id, m in activities[week_idx * 7 + i].items():
-                        mileages += float(m)
+                    for a_id, m in activities[week_idx * 7 + i].iteritems():
+                        mileages += float(m[0])
             v["weekly_scores"][week_idx] = round(mileages, 2)
+
+    def update_total_mileage(self):
+        for k, v in self.__data.iteritems():
+            activities = v["activities"]
+            mileage = 0.0
+            total_time = 0.0
+            for i in range(len(activities)):
+                if activities[i] is not None:
+                    for a_id, m in activities[i].iteritems():
+                        try:
+                            mileage += float(m[0])
+                            total_time += float(m[1])
+                        except:
+                            print(
+                                v["first_name"] + " " + v["last_name"], file=sys.stderr
+                            )
+            v["total_mileage"] = round(mileage, 1)
+            avg_pace = 0 if mileage == 0 else total_time / (60 * mileage)
+            pace_min = int(avg_pace)
+            pace_sec = int(60 * (avg_pace - pace_min))
+            v["avg_pace"] = "{:d}:{:02d}".format(pace_min, pace_sec)
 
     def update_weekly_scores(self, week_idx):
         if self.__type == TYPE_MILEAGE:
@@ -139,7 +151,6 @@ class EventData:
         ret = []
         if week_idx >= self.numWeeks or week_idx < 0:
             return ["Week:", []]
-
         week_start = self.__startDate + timedelta(week_idx * 7)
         week_end = week_start + timedelta(6)
         week_str = (
@@ -147,14 +158,19 @@ class EventData:
                 week_start, week_end
             )
         )
-        for k, v in self.__data.items():
+        for k, v in self.__data.iteritems():
             workouts = v["activities"][7 * week_idx : 7 * week_idx + 7]
             workouts_stats = []
             for x in workouts:
                 if x:
                     distance = 0.0
-                    for i, m in x.items():
-                        distance += m[0]
+                    for i, m in x.iteritems():
+                        try:
+                            distance += m[0]
+                        except:
+                            print(
+                                v["first_name"] + " " + v["last_name"], file=sys.stderr
+                            )
                     workouts_stats.append("{0:.1f}".format(distance))
                 else:
                     workouts_stats.append("")
@@ -166,6 +182,8 @@ class EventData:
                 "workouts": workouts_stats,
                 "score": v["weekly_scores"][week_idx],
                 "total_score": total_score,
+                "total_mileage": v["total_mileage"],
+                "avg_pace": v["avg_pace"],
             }
             ret.append(entry)
         return [week_str, ret]
@@ -174,7 +192,7 @@ class EventData:
         """
         Update athlete activities
         """
-        for athlete_id, athlete_stats in self.__data.items():
+        for athlete_id, athlete_stats in self.__data.iteritems():
             current_time = int(time.time())
             expires_at = int(athlete_stats["token_expires_at"])
             if expires_at - current_time <= 3600:
@@ -183,18 +201,33 @@ class EventData:
                     athlete_stats["access_token"] = auth_res["access_token"]
                     athlete_stats["token_expires_at"] = auth_res["expires_at"]
                 else:
-                    return
+                    err_msg = "Authentication on Athlete %s %s failed %s" % (
+                        athlete_stats["first_name"],
+                        athlete_stats["last_name"],
+                        str(activities),
+                    )
+                    print(err_msg, file=sys.stderr)
+                    continue
             activities = strava_obj.listAthleteActivities(
                 athlete_stats["access_token"],
                 current_time,
                 current_time - 864000,
                 None,
-                None,
+                200,
             )
+            if not isinstance(activities, list):
+                err_msg = "Authentication on Athlete %s %s failed %s" % (
+                    athlete_stats["first_name"],
+                    athlete_stats["last_name"],
+                    str(activities),
+                )
+                print(err_msg, file=sys.stderr)
+                continue
             for activity in activities:
-                if type(activity) is dict:
-                    activity = process_activity(activity)
-                    self.add_activity(athlete_stats, activity, time_zone)
+                if "run" not in activity["type"].lower():
+                    continue
+                activity = process_activity(activity)
+                self.add_activity(athlete_stats, activity, time_zone)
 
     def add_activity(self, athlete_stats, strava_activity, time_zone):
         """
@@ -205,12 +238,18 @@ class EventData:
         If the activity is manual, add it to the pending queue
         """
         if strava_activity["manual"]:
+            err_msg = "Activity %s by %s %s is not qualified" % (
+                strava_activity["id"],
+                athlete_stats["first_name"],
+                athlete_stats["last_name"],
+            )
+            print(err_msg, file=sys.stderr)
+            print(json.dumps(strava_activity), file=sys.stderr)
             return False
-
         activity_id = strava_activity["id"]
         gender = athlete_stats["gender"]
         distance = strava_activity["distance"]
-        moving_time = strava_activity['moving_time']
+        moving_time = strava_activity["moving_time"]
         avg_pace = strava_activity["avg_pace"]
         activity_date = convert_datestr(strava_activity["start_date"], time_zone).date()
         if activity_date > self.__endDate or activity_date < self.__startDate:
@@ -221,13 +260,16 @@ class EventData:
             or distance < 3.0
         ):
             return False
-
         activities = athlete_stats["activities"]
         idx = (activity_date - self.__startDate).days
+        """
+    if activities[idx] and str(activity_id) in activities[idx]:
+      return False
+    """
         if activities[idx] is None:
             activities[idx] = {str(activity_id): [distance, moving_time]}
-        else: 
-          activities[idx][str(activity_id)] = [distance, moving_time]
+        else:
+            activities[idx][str(activity_id)] = [distance, moving_time]
         return True
 
     def save_data(self):
