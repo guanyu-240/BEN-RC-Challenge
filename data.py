@@ -45,7 +45,7 @@ class EventData:
         self.__endDate = end_date
         self.__type = TYPE_MILEAGE if not event_type else event_type
         self.numDays = 1 + (self.__endDate - self.__startDate).days
-        self.numWeeks = self.numDays / 7
+        self.numWeeks = int(self.numDays / 7)
 
     def register_athlete(self, auth_res):
         """
