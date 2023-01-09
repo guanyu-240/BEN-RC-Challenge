@@ -187,14 +187,14 @@ class EventData:
             activities = strava_obj.listAthleteActivities(
                 athlete_stats["access_token"],
                 current_time,
-                current_time - 360000,
+                current_time - 864000,
                 None,
                 None,
             )
-            print(activities)
             for activity in activities:
-                activity = process_activity(activity)
-                self.add_activity(athlete_stats, activity, time_zone)
+                if type(activity) is dict:
+                    activity = process_activity(activity)
+                    self.add_activity(athlete_stats, activity, time_zone)
 
     def add_activity(self, athlete_stats, strava_activity, time_zone):
         """
@@ -210,6 +210,7 @@ class EventData:
         activity_id = strava_activity["id"]
         gender = athlete_stats["gender"]
         distance = strava_activity["distance"]
+        moving_time = strava_activity['moving_time']
         avg_pace = strava_activity["avg_pace"]
         activity_date = convert_datestr(strava_activity["start_date"], time_zone).date()
         if activity_date > self.__endDate or activity_date < self.__startDate:
@@ -223,12 +224,10 @@ class EventData:
 
         activities = athlete_stats["activities"]
         idx = (activity_date - self.__startDate).days
-        if activities[idx] and str(activity_id) in activities[idx]:
-            return False
         if activities[idx] is None:
-            activities[idx] = {str(activity_id): distance}
-        else:
-            activities[idx][str(activity_id)] = distance
+            activities[idx] = {str(activity_id): [distance, moving_time]}
+        else: 
+          activities[idx][str(activity_id)] = [distance, moving_time]
         return True
 
     def save_data(self):
