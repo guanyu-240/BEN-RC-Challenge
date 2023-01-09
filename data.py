@@ -82,7 +82,7 @@ class EventData:
         """
         if week_idx >= self.numWeeks:
             return
-        for k, v in self.__data.iteritems():
+        for k, v in self.__data.items():
             activities = v["activities"]
             base_score = 0
             penalty = 0
@@ -106,23 +106,23 @@ class EventData:
         """
         if week_idx >= self.numWeeks:
             return
-        for k, v in self.__data.iteritems():
+        for k, v in self.__data.items():
             activities = v["activities"]
             mileages = 0.0
             for i in range(7):
                 if activities[week_idx * 7 + i] is not None:
-                    for a_id, m in activities[week_idx * 7 + i].iteritems():
+                    for a_id, m in activities[week_idx * 7 + i].items():
                         mileages += float(m[0])
             v["weekly_scores"][week_idx] = round(mileages, 2)
 
     def update_total_mileage(self):
-        for k, v in self.__data.iteritems():
+        for k, v in self.__data.items():
             activities = v["activities"]
             mileage = 0.0
             total_time = 0.0
             for i in range(len(activities)):
                 if activities[i] is not None:
-                    for a_id, m in activities[i].iteritems():
+                    for a_id, m in activities[i].items():
                         try:
                             mileage += float(m[0])
                             total_time += float(m[1])
@@ -158,13 +158,13 @@ class EventData:
                 week_start, week_end
             )
         )
-        for k, v in self.__data.iteritems():
+        for k, v in self.__data.items():
             workouts = v["activities"][7 * week_idx : 7 * week_idx + 7]
             workouts_stats = []
             for x in workouts:
                 if x:
                     distance = 0.0
-                    for i, m in x.iteritems():
+                    for i, m in x.items():
                         try:
                             distance += m[0]
                         except:
@@ -192,7 +192,7 @@ class EventData:
         """
         Update athlete activities
         """
-        for athlete_id, athlete_stats in self.__data.iteritems():
+        for athlete_id, athlete_stats in self.__data.items():
             current_time = int(time.time())
             expires_at = int(athlete_stats["token_expires_at"])
             if expires_at - current_time <= 3600:
