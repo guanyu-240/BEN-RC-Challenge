@@ -154,7 +154,7 @@ class EventData:
                 if x:
                     distance = 0.0
                     for i, m in x.items():
-                        distance += m
+                        distance += m[0]
                     workouts_stats.append("{0:.1f}".format(distance))
                 else:
                     workouts_stats.append("")
