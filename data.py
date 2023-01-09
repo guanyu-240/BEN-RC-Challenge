@@ -182,8 +182,8 @@ class EventData:
                 "workouts": workouts_stats,
                 "score": v["weekly_scores"][week_idx],
                 "total_score": total_score,
-                "total_mileage": v["total_mileage"],
-                "avg_pace": v["avg_pace"],
+                "total_mileage": v.get("total_mileage", 0),
+                "avg_pace": v.get("avg_pace", -1),
             }
             ret.append(entry)
         return [week_str, ret]
