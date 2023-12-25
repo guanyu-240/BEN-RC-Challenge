@@ -78,7 +78,7 @@ class EventData:
     def get_teams(self):
         return self.__data[TEAMS]
 
-    def register_or_join_team(self, team_id, team_name, athlete_id):
+    def register_or_join_team(self, athlete_id, team_id, team_name):
         """
         Add team
         """
