@@ -51,7 +51,7 @@ def update_data(data):
     """
     global last_updated_time
     now = datetime.now()
-    if last_updated_time and (now - last_updated_time).seconds < 60: return
+    if last_updated_time and (now - last_updated_time).seconds < 600: return
     data.update_activities(strava_obj, auth, 'US/Eastern')
     data.save_data()
     for week_idx in range(data.get_current_week_idx(time_zone='US/Eastern')+1):
