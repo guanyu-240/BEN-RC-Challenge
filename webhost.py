@@ -127,7 +127,7 @@ def token_exchange():
         data = event_cfg.load_event_data(event_id)
         if data:
             data.register_athlete(auth_res)
-            session["athlete"] = auth_res["athlete"]
+            session["athlete"] = auth_res["athlete"]["id"]
         return render_template("team_registration.html", teams=data.get_teams())
 
 
