@@ -143,7 +143,7 @@ def register_team():
         return "Event data not available"
     team_id = get_post_val(None, "team_id")
     team_name = get_post_val(None, "team_name")
-    if not team_id or not team_name:
+    if not team_id and not team_name:
         return "Invalid team registration!"
     data.register_or_join_team(session["athlete"], team_id, team_name)
     return render_template("event_registration.html")
