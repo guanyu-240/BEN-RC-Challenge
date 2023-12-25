@@ -2,7 +2,6 @@
 import sys
 from flask import Flask, render_template
 from flask import request, redirect, url_for, session
-from flask_session import Session
 from stravalib.strava import Strava, process_activity
 from stravalib.strava_oauth2 import StravaAuth
 from event import EventConfig
@@ -14,9 +13,6 @@ from bcrypt import gensalt
 
 app = Flask(__name__)
 app.secret_key = gensalt(20)
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
 event_data_map = {}
 
