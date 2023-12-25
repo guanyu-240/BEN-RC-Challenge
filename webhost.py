@@ -133,7 +133,8 @@ def token_exchange():
 
 @app.route("/register_team", methods=["GET", "POST"])
 def register_team():
-    if not session.get("athlete"):
+    athlete = session.get("athlete")
+    if not athlete:
         return redirect(url_for("register"))
     event = events.get(event_id)
     if event is None:
@@ -145,7 +146,7 @@ def register_team():
     team_name = get_post_val(None, "team_name")
     if not team_id and not team_name:
         return "Invalid team registration!"
-    data.register_or_join_team(session["athlete"], team_id, team_name)
+    data.register_or_join_team(athlete, team_id, team_name)
     return render_template("event_registration.html")
 
 # event statistics
