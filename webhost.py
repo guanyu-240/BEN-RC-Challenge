@@ -2,6 +2,7 @@
 import sys
 from flask import Flask, render_template
 from flask import request, redirect, url_for, session
+from flask_session import Session
 from stravalib.strava import Strava, process_activity
 from stravalib.strava_oauth2 import StravaAuth
 from event import EventConfig
@@ -13,6 +14,10 @@ from bcrypt import gensalt
 
 app = Flask(__name__)
 app.secret_key = gensalt(20)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 event_data_map = {}
 
 # load website info
@@ -125,10 +130,27 @@ def token_exchange():
             return "Event not found!"
         data = event_cfg.load_event_data(event_id)
         if data:
-            ret = data.register_athlete(auth_res)
-            data.save_data()
-        return render_template("event_registration.html")
+            data.register_athlete(auth_res)
+            session["athlete"] = auth_res["athlete"]
+        return render_template("team_registration.html", teams=data.get_teams())
 
+
+@app.route("/register_team", methods=["GET", "POST"])
+def register_team():
+    if not session.get("athlete"):
+        return redirect(url_for("register"))
+    event = events.get(event_id)
+    if event is None:
+        return "Event not found!"
+    data = event_cfg.load_event_data(event_id)
+    if data is None:
+        return "Event data not available"
+    team_id = get_post_val(None, "team_id")
+    team_name = get_post_val(None, "team_name")
+    if not team_id or not team_name:
+        return "Invalid team registration!"
+    data.register_or_join_team(session["athlete"], team_id, team_name)
+    return render_template("event_registration.html")
 
 # event statistics
 @app.route("/event_stats", methods=["GET", "POST"])

@@ -27,6 +27,9 @@ strava_id:
 TYPE_MILEAGE = 1
 TYPE_STREAK = 2
 
+TEAMS = "teams"
+ATHLETES = "athletes"
+
 
 class EventData:
     def __init__(self, file_name, start_date, end_date, event_type):
@@ -35,7 +38,7 @@ class EventData:
             fr = open(file_name)
             json_str = fr.read()
             if json_str is None or json_str == "":
-                self.__data = {}
+                self.__data = {TEAMS: {}, ATHLETES: {}}
             else:
                 self.__data = JSONDecoder().decode(json_str)
             fr.close()
@@ -53,9 +56,9 @@ class EventData:
         """
         athlete = auth_res["athlete"]
         if str(athlete["id"]) in self.__data:
-            self.__data[str(athlete["id"])]["access_token"] = auth_res["access_token"]
-            self.__data[str(athlete["id"])]["refresh_token"] = auth_res["refresh_token"]
-            self.__data[str(athlete["id"])]["token_expires_at"] = auth_res["expires_at"]
+            self.__data[ATHLETES][str(athlete["id"])]["access_token"] = auth_res["access_token"]
+            self.__data[ATHLETES][str(athlete["id"])]["refresh_token"] = auth_res["refresh_token"]
+            self.__data[ATHLETES][str(athlete["id"])]["token_expires_at"] = auth_res["expires_at"]
             return
         entry = {
             "first_name": athlete["firstname"],
@@ -69,7 +72,26 @@ class EventData:
             "total_mileage": 0,
             "avg_pace": -1,
         }
-        self.__data[str(athlete["id"])] = entry
+        self.__data[ATHLETES][str(athlete["id"])] = entry
+        self.save_data()
+
+    def get_teams(self):
+        return self.__data[TEAMS]
+
+    def register_or_join_team(self, team_id, team_name, athlete_id):
+        """
+        Add team
+        """
+        if not team_id:
+            # register a new team
+            team_id = team_name.lower().replace(" ", "_")
+            if team_id in self.__data[TEAMS]:
+                return None
+            self.__data[TEAMS][team_id] = team_name
+
+        self.__data[ATHLETES][str(athlete_id)]["team_id"] = team_id
+        self.save_data()
+        return team_id
 
     def get_current_week_idx(self, time_zone="UTC"):
         today = datetime.now(timezone(time_zone)).date()
@@ -82,7 +104,7 @@ class EventData:
         """
         if week_idx >= self.numWeeks:
             return
-        for k, v in self.__data.items():
+        for k, v in self.__data[ATHLETES].items():
             activities = v["activities"]
             base_score = 0
             penalty = 0
@@ -106,7 +128,7 @@ class EventData:
         """
         if week_idx >= self.numWeeks:
             return
-        for k, v in self.__data.items():
+        for k, v in self.__data[ATHLETES].items():
             activities = v["activities"]
             mileages = 0.0
             for i in range(7):
@@ -116,7 +138,7 @@ class EventData:
             v["weekly_scores"][week_idx] = round(mileages, 2)
 
     def update_total_mileage(self):
-        for k, v in self.__data.items():
+        for k, v in self.__data[ATHLETES].items():
             activities = v["activities"]
             mileage = 0.0
             total_time = 0.0
@@ -158,7 +180,7 @@ class EventData:
                 week_start, week_end
             )
         )
-        for k, v in self.__data.items():
+        for k, v in self.__data[ATHLETES].items():
             workouts = v["activities"][7 * week_idx : 7 * week_idx + 7]
             workouts_stats = []
             for x in workouts:
@@ -192,7 +214,7 @@ class EventData:
         """
         Update athlete activities
         """
-        for athlete_id, athlete_stats in self.__data.items():
+        for athlete_id, athlete_stats in self.__data[ATHLETES].items():
             current_time = int(time.time())
             expires_at = int(athlete_stats["token_expires_at"])
             if expires_at - current_time <= 3600:

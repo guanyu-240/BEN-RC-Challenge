@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Event registration</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="container">
+    <h2 align="center">You Are Registered!</h2>
+    <h3 align="center">Register or join a team</h2>
+  </div>
+  <form action="register_team", method='post'>
+    <div class="form-group row">
+      <label for="team_name" class="col-sm-2 col-form-label">Team name</label>
+      <div class="col-sm-10">
+        <input type="text" name="team_name" class="form-control" id="team_name" placeholder="Team Name">
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="team_id" class="col-sm-2 col-form-label">Select a team</label>
+      <div class="col-sm-10">
+        <select id="team_id" name="team_id">
+          {% for team_id, team_name in teams.items() %}
+          <option value={{ team_id }}>{{ team_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="submit" class="btn btn-primary">Register</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+</body>
+<footer class="footer">
+  <div class="container" align="center">
+    <p class="text-muted">© Copyright 2023 Guanyu Wang, BEN Running Club</p>
+  </div>
+</footer>
+</html>
