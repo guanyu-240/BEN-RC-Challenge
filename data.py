@@ -43,7 +43,7 @@ class EventData:
                 self.__data = JSONDecoder().decode(json_str)
             fr.close()
         else:
-            self.__data = {}
+            self.__data = {TEAMS: {}, ATHLETES: {}}
         self.__startDate = start_date
         self.__endDate = end_date
         self.__type = TYPE_MILEAGE if not event_type else event_type
