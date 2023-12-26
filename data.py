@@ -82,7 +82,7 @@ class EventData:
         """
         Add team
         """
-        if not team_id:
+        if team_name:
             # register a new team
             team_id = team_name.lower().replace(" ", "_")
             if team_id in self.__data[TEAMS]:
