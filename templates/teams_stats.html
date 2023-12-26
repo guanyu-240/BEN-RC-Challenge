@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Event Stats</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+  <link rel="stylesheet" href="static/css/home.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="jumbotron" id="page_header_1">
+    <h1 id="ben_header"><img src="static/images/BEN.jpg" class="img-circle" width="120" height="120"/>&nbsp;&nbsp;BEN Running Club</h1>
+  </div>
+</div>
+<div id="stats" class="container">
+  <h2 align="center"><strong>{{ event_title }}</strong></h1>
+  <h4 align="center">{{ week_str }}</h4>
+  <table class="table table-striped">
+  <p align="right">
+  <thead class="thead-inverse">
+    <tr>
+      <th>Teams</th>
+      <th>Total Mileage</th>
+      <th>Participants</th>
+      <th>Average Mileage</th>
+    </tr>
+  </thead>
+  <tbody>{% for x in teams_stats %} <tr>
+      <th scope="row">{{ x[1] }}</th>
+      <td>{{ x[2] }}</td>
+      <td>{{ x[3] }}</td>
+      <td>{{ x[4] }}</td>
+      </tr>
+  {% endfor %}</tbody>
+  </table>
+
+</div>
+</body>
+<footer class="footer">
+  <div class="container" align="center">
+    <p class="text-muted">© Copyright 2016-2017 Guanyu Wang, BEN Running Club</p>
+  </div>
+</footer>
+</html>

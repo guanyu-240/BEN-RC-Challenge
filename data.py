@@ -209,6 +209,22 @@ class EventData:
             }
             ret.append(entry)
         return [week_str, ret]
+    
+    def get_teams_data(self):
+        teams_mileage = {}
+        for k,v in self.__data[ATHLETES].items():
+            if "team_id" in v:
+                team_id = v["team_id"]
+                if team_id not in teams_mileage:
+                    teams_mileage[team_id] = [v["total_mileage"], 1]
+                else:
+                    teams_mileage[team_id][0] += v["total_mileage"]
+                    teams_mileage[team_id][1] += 1
+        res = []
+        for k,v in teams_mileage.items():
+            res.append((k, self.__data[TEAMS][k], v[0], v[1], v[0]/v[1]))
+        res = sorted(res, key=lambda x: x[4], reverse=True)
+        return res
 
     def update_activities(self, strava_obj, auth, time_zone):
         """

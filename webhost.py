@@ -178,5 +178,24 @@ def event_stats():
     )
 
 
+@app.route("/event_stats_teams", methods=["GET", "POST"])
+def teams_stats():
+    event = events.get(event_id)
+    if event is None:
+        return "Event not found!"
+    data = event_cfg.load_event_data(event_id)
+    if data is None:
+        return "Event data not available"
+
+    event_title = event["title"]
+
+    teams_stats = data.get_teams_data()
+    return render_template(
+        "teams_stats.html",
+        event_id=event_id,
+        event_title=event_title,
+        teams_stats=teams_stats
+    )
+
 if __name__ == "__main__":
     app.run()
