@@ -215,7 +215,7 @@ class EventData:
         for k,v in self.__data[ATHLETES].items():
             if "team_id" in v:
                 team_id = v["team_id"]
-                athlete_name = " ".join(v["first_name"],v["last_name"])
+                athlete_name = f"{v['first_name']} {v['last_name']}"
                 if team_id not in teams_mileage:
                     teams_mileage[team_id] = [v["total_mileage"], [athlete_name]]
                 else:
