@@ -32,7 +32,7 @@
   </thead>
   <tbody>{% for x in teams_stats %} <tr>
       <th scope="row">{{ x[1] }}</th>
-      <td>{{ x[2] }}</td>
+      <td>{{ "<br/>".join(x[2]) }}</td>
       <td>{{ x[3] }}</td>
       <td>{{ x[4] }}</td>
       </tr>

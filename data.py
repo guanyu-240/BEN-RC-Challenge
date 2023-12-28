@@ -59,20 +59,20 @@ class EventData:
             self.__data[ATHLETES][str(athlete["id"])]["access_token"] = auth_res["access_token"]
             self.__data[ATHLETES][str(athlete["id"])]["refresh_token"] = auth_res["refresh_token"]
             self.__data[ATHLETES][str(athlete["id"])]["token_expires_at"] = auth_res["expires_at"]
-            return
-        entry = {
-            "first_name": athlete["firstname"],
-            "last_name": athlete["lastname"],
-            "gender": athlete["sex"],
-            "access_token": auth_res["access_token"],
-            "refresh_token": auth_res["refresh_token"],
-            "token_expires_at": auth_res["expires_at"],
-            "activities": [None for i in range(self.numDays)],
-            "weekly_scores": [0 for i in range(self.numWeeks)],
-            "total_mileage": 0,
-            "avg_pace": -1,
-        }
-        self.__data[ATHLETES][str(athlete["id"])] = entry
+        else:
+            entry = {
+                "first_name": athlete["firstname"],
+                "last_name": athlete["lastname"],
+                "gender": athlete["sex"],
+                "access_token": auth_res["access_token"],
+                "refresh_token": auth_res["refresh_token"],
+                "token_expires_at": auth_res["expires_at"],
+                "activities": [None for i in range(self.numDays)],
+                "weekly_scores": [0 for i in range(self.numWeeks)],
+                "total_mileage": 0,
+                "avg_pace": -1,
+            }
+            self.__data[ATHLETES][str(athlete["id"])] = entry
         self.save_data()
 
     def get_teams(self):
@@ -215,14 +215,15 @@ class EventData:
         for k,v in self.__data[ATHLETES].items():
             if "team_id" in v:
                 team_id = v["team_id"]
+                athlete_name = " ".join(v["first_name"],v["last_name"])
                 if team_id not in teams_mileage:
-                    teams_mileage[team_id] = [v["total_mileage"], 1]
+                    teams_mileage[team_id] = [v["total_mileage"], [athlete_name]]
                 else:
                     teams_mileage[team_id][0] += v["total_mileage"]
-                    teams_mileage[team_id][1] += 1
+                    teams_mileage[team_id][1].append(athlete_name)
         res = []
         for k,v in teams_mileage.items():
-            res.append((k, self.__data[TEAMS][k], v[0], v[1], v[0]/v[1]))
+            res.append((k, self.__data[TEAMS][k], v[0], v[1], v[0]/len(v[1])))
         res = sorted(res, key=lambda x: x[4], reverse=True)
         return res
 
