@@ -223,7 +223,7 @@ class EventData:
                     teams_mileage[team_id][1].append(athlete_name)
         res = []
         for k,v in teams_mileage.items():
-            res.append((k, self.__data[TEAMS][k], v[0], v[1], v[0]/len(v[1])))
+            res.append((k, self.__data[TEAMS][k], format(v[0], ".2f"), v[1], format(v[0]/len(v[1]), ".2f")))
         res = sorted(res, key=lambda x: x[4], reverse=True)
         return res
 
