@@ -123,7 +123,11 @@ class Strava:
         if per_page:
             params["per_page"] = per_page
         r = requests.get(ATHLETE_ACTIVITIES_URL, params=params)
-        return r.json()
+        try:
+            return r.json()
+        except:
+            print(r.text)
+            return []
 
     def listFriendsActivities(
         self, access_token, before=None, page=None, per_page=None

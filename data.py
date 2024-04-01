@@ -224,7 +224,7 @@ class EventData:
         res = []
         for k,v in teams_mileage.items():
             res.append((k, self.__data[TEAMS][k], format(v[0], ".2f"), v[1], format(v[0]/len(v[1]), ".2f")))
-        res = sorted(res, key=lambda x: x[4], reverse=True)
+        res = sorted(res, key=lambda x: float(x[4]), reverse=True)
         return res
 
     def update_activities(self, strava_obj, auth, time_zone):
