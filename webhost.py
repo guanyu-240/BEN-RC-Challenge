@@ -126,7 +126,7 @@ def token_exchange():
         if data:
             data.register_athlete(auth_res)
             session["athlete"] = auth_res["athlete"]["id"]
-        return render_template("team_registration.html", teams=data.get_teams())
+        return render_template("event_registration.html", teams=data.get_teams())
 
 
 @app.route("/register_team", methods=["GET", "POST"])

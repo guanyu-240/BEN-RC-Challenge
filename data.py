@@ -119,7 +119,7 @@ class EventData:
                     drought = 0
             if drought > 0:
                 penalty += drought - 1
-            score = min(max(base_score - penalty, 0), 6)
+            score = min(max(base_score - penalty, 0), 5)
             v["weekly_scores"][week_idx] = score
 
     def update_weekly_mileages(self, week_idx):
@@ -145,6 +145,8 @@ class EventData:
             for i in range(len(activities)):
                 if activities[i] is not None:
                     for a_id, m in activities[i].items():
+                        if not m[2]:
+                            continue
                         try:
                             mileage += float(m[0])
                             total_time += float(m[1])
@@ -294,9 +296,9 @@ class EventData:
         if activity_date > self.__endDate or activity_date < self.__startDate:
             return False
         if (
-            (gender == "M" and avg_pace > 11.0)
-            or (gender == "F" and avg_pace > 12.0)
-            or distance < 3.0
+            (gender == "M" and avg_pace > 12.0)
+            or (gender == "F" and avg_pace > 13.0)
+            or distance < 4.0
         ):
             return False
         activities = athlete_stats["activities"]
@@ -305,10 +307,11 @@ class EventData:
     if activities[idx] and str(activity_id) in activities[idx]:
       return False
     """
+        is_outdoor = "map" in strava_activity
         if activities[idx] is None:
-            activities[idx] = {str(activity_id): [distance, moving_time]}
+            activities[idx] = {str(activity_id): [distance, moving_time, is_outdoor]}
         else:
-            activities[idx][str(activity_id)] = [distance, moving_time]
+            activities[idx][str(activity_id)] = [distance, moving_time, is_outdoor]
         return True
 
     def save_data(self):
