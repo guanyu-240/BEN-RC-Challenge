@@ -307,7 +307,7 @@ class EventData:
     if activities[idx] and str(activity_id) in activities[idx]:
       return False
     """
-        is_outdoor = ("map" in strava_activity) and bool(strava_activity["map"].get("summary"))
+        is_outdoor = ("map" in strava_activity) and bool(strava_activity["map"].get("summary_polyline"))
         if activities[idx] is None:
             activities[idx] = {str(activity_id): [distance, moving_time, is_outdoor]}
         else:
