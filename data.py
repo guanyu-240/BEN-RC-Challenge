@@ -210,6 +210,7 @@ class EventData:
                 "avg_pace": v.get("avg_pace", -1),
             }
             ret.append(entry)
+            ret = sorted(ret, key=lambda x: (x["total_score"], x["total_mileage"]), reverse=True)
         return [week_str, ret]
     
     def get_teams_data(self):
