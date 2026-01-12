@@ -47,8 +47,13 @@ def update_data(data):
     """
     global last_updated_time
     now = datetime.now()
-    if last_updated_time and (now - last_updated_time).seconds < 600: return
-    data.update_activities(strava_obj, auth, 'US/Eastern')
+    if last_updated_time and (now - last_updated_time).seconds < 3600:
+        return
+    if (not last_updated_time) or now.day != last_updated_time.day:
+        # If initialized or new day, backfill 10 days' data
+        data.update_activities(strava_obj, auth, 'US/Eastern', look_back=864000)
+    else:
+        data.update_activities(strava_obj, auth, 'US/Eastern', look_back=86400)
     for week_idx in range(data.get_current_week_idx(time_zone='US/Eastern')+1):
         data.update_weekly_scores(week_idx)
     data.update_total_mileage()
