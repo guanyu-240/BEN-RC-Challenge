@@ -212,7 +212,7 @@ class EventData:
             ret.append(entry)
             ret = sorted(ret, key=lambda x: (x["total_score"], x["total_mileage"]), reverse=True)
         return [week_str, ret]
-    
+
     def get_teams_data(self):
         teams_mileage = {}
         for k,v in self.__data[ATHLETES].items():
@@ -230,7 +230,7 @@ class EventData:
         res = sorted(res, key=lambda x: float(x[4]), reverse=True)
         return res
 
-    def update_activities(self, strava_obj, auth, time_zone):
+    def update_activities(self, strava_obj, auth, time_zone, look_back=86400):
         """
         Update athlete activities
         """
@@ -253,7 +253,7 @@ class EventData:
             activities = strava_obj.listAthleteActivities(
                 athlete_stats["access_token"],
                 current_time,
-                current_time - 864000,
+                current_time - look_back,
                 None,
                 200,
             )
